@@ -1,5 +1,5 @@
 import { Scene } from "phaser";
-import Player from "../player/player";
+import { Player } from "../player/player";
 import { Multiplayer } from "../multiplayer/multiplayer";
 
 export class Game extends Scene {

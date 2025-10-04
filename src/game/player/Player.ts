@@ -4,7 +4,7 @@ import { Multiplayer } from "../multiplayer/multiplayer";
 // let sendAccumulator = 0;
 // const SEND_INTERVAL = 1000 / 15; // ~15Hz
 
-export default class Player extends Phaser.Physics.Arcade.Sprite {
+export class Player extends Phaser.Physics.Arcade.Sprite {
     id: string;
     scene: Scene;
     speed: number = 100;
