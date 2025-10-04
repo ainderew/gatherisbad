@@ -25,7 +25,8 @@
         "dev": "node log.js dev & next dev -p 8080",
         "build": "node log.js build & next build",
         "dev-nolog": "next dev -p 8080",
-        "build-nolog": "next build"
+        "build-nolog": "next build",
+        "start": "next start -p 8080"
     },
     "dependencies": {
         "next": "15.3.1",
