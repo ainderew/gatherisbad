@@ -1,10 +1,11 @@
 import Phaser, { Scene } from "phaser";
-import { multiplayer } from "../multiplayer/multiplayer";
+import { Multiplayer } from "../multiplayer/Multiplayer";
 
-let sendAccumulator = 0;
-const SEND_INTERVAL = 1000 / 15; // ~15Hz
+// let sendAccumulator = 0;
+// const SEND_INTERVAL = 1000 / 15; // ~15Hz
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
+    id: string;
     scene: Scene;
     speed: number = 100;
     x: number;
@@ -19,7 +20,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     moveSpeed: number;
     isLocal: boolean = true;
     cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
-    multiplayer;
+    Multiplayer;
 
     wasd?: {
         up: Phaser.Input.Keyboard.Key;
@@ -30,10 +31,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     constructor(
         scene: Scene,
+        id: string,
         x: number,
         y: number,
         sprite: string,
-        ops: { isLocal: boolean; id: string },
+        ops: { isLocal: boolean },
     ) {
         super(scene, x, y, sprite);
 
@@ -46,16 +48,15 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.setBounce(0.1);
         this.setScale(3);
 
+        this.id = id;
         this.scene = scene;
-        this.multiplayer = new multiplayer();
+        this.Multiplayer = new Multiplayer();
 
-        // Now `this.body` exists
         this.moveSpeed = 300;
         this.isLocal = ops.isLocal;
 
         if (this.isLocal) {
             this.cursors = scene.input.keyboard!.createCursorKeys();
-            // optional WASD
             this.wasd = {
                 up: scene.input.keyboard!.addKey("W"),
                 left: scene.input.keyboard!.addKey("A"),
@@ -73,7 +74,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             })
             .setOrigin(0.5, 0.5); // center the text
 
-        // optional: scale, depth
         this.nameText.setDepth(10);
 
         this.startAnimation();
@@ -96,20 +96,20 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.anims.play("idle");
     }
 
-    public update(time, delta) {
+    public update() {
         if (this.isLocal) {
-            this.updateInput(delta);
+            this.updateInput();
         } else {
-            this.interpolateRemote(delta);
+            this.interpolateRemote();
         }
         this.nameText.setPosition(this.x, this.y - 30);
     }
 
-    private updateInput(delta) {
-        const left = this.cursors.left.isDown || this.wasd.left.isDown;
-        const right = this.cursors.right.isDown || this.wasd.right.isDown;
-        const up = this.cursors.up.isDown || this.wasd.up.isDown;
-        const down = this.cursors.down.isDown || this.wasd.down.isDown;
+    private updateInput() {
+        const left = this.cursors!.left.isDown || this.wasd!.left.isDown;
+        const right = this.cursors!.right.isDown || this.wasd!.right.isDown;
+        const up = this.cursors!.up.isDown || this.wasd!.up.isDown;
+        const down = this.cursors!.down.isDown || this.wasd!.down.isDown;
 
         let vx = 0;
         let vy = 0;
@@ -126,23 +126,23 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.setVelocity(vx, vy);
 
-        this.multiplayer.emitPlayerMovement({
+        this.Multiplayer.emitPlayerMovement({
             x: this.x,
             y: this.y,
             vx,
             vy,
+            id: this.Multiplayer.socket.id,
+            opts: { isLocal: true },
         });
 
         // Optionally, notify the server of new state here (throttled).
         // e.g. this.scene.networkSend('move', { id: this.id, x: this.x, y: this.y, vx, vy })
     }
 
-    private interpolateRemote(delta: number) {
+    private interpolateRemote() {
         if (!this.targetPos) return; // no update yet
 
-        const lerpFactor = 1; // how fast to move toward target
-
-        // LERP = Linear Interpolation
+        const lerpFactor = 1;
         this.x += (this.targetPos.x - this.x) * lerpFactor;
         this.y += (this.targetPos.y - this.y) * lerpFactor;
     }

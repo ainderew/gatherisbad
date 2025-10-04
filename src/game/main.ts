@@ -1,5 +1,3 @@
-import { Boot } from "./scenes/Boot";
-import { MainMenu } from "./scenes/MainMenu";
 import { Game as GameScene } from "./scenes/Game";
 import { AUTO, Game } from "phaser";
 
@@ -11,7 +9,6 @@ const config: Phaser.Types.Core.GameConfig = {
     height: 768,
     parent: "game-container",
     backgroundColor: "#000000",
-    // scene: [MainMenu],
     scene: [GameScene],
     pixelArt: true,
     physics: {

@@ -1,6 +1,6 @@
 import { Scene } from "phaser";
 import Player from "../player/Player";
-import { multiplayer } from "../multiplayer/multiplayer";
+import { Multiplayer } from "../multiplayer/Multiplayer";
 
 export class Game extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;
@@ -13,7 +13,7 @@ export class Game extends Scene {
     constructor() {
         super("Game");
         this.players = new Map();
-        this.socket = new multiplayer();
+        this.socket = new Multiplayer();
     }
 
     preload() {
@@ -70,13 +70,12 @@ export class Game extends Scene {
         x: number,
         y: number,
         opts: { isLocal: boolean },
-    ) {
+    ): void {
         if (this.players.has(id)) {
             return this.players.get(id);
         }
 
-        const p = new Player(this, x, y, "char", {
-            id,
+        const p = new Player(this, id, x, y, "char", {
             isLocal: opts.isLocal,
         });
 
@@ -84,11 +83,9 @@ export class Game extends Scene {
 
         // Example physics collision with world bounds or layers:
         // this.physics.add.collider(p, someLayer);
-
-        return p;
     }
 
-    public destroyPlayer(id: string) {
+    public destroyPlayer(id: string): void {
         const p = this.players.get(id);
         if (p) {
             p.destroy();
@@ -104,7 +101,10 @@ export class Game extends Scene {
                 this.socket.emitPlayerMovement({
                     x: p.x,
                     y: p.y,
+                    vx: p.vx,
+                    vy: p.vy,
                     id: this.localPlayerId,
+                    opts: { isLocal: true },
                 });
             }
         }

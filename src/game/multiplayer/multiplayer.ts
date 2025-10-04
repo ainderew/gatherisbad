@@ -1,6 +1,8 @@
 import io from "socket.io-client";
+import { Player } from "../player/_types";
+import { PlayerDto } from "./_types";
 
-export class multiplayer {
+export class Multiplayer {
     socket: SocketIOClient.Socket = io("http://localhost:3000", {
         autoConnect: false,
     });
@@ -20,25 +22,34 @@ export class multiplayer {
         this.socket.disconnect();
     }
 
-    public emitPlayerMovement(data: any) {
+    public emitPlayerMovement(data: PlayerDto) {
         this.socket.emit("playerMovement", data);
     }
 
-    public watchNewPlayers(createPlayer: Function, destroyPlayer: Function) {
-        this.socket.on("currentPlayers", (players: any) => {
-            console.log("Current players:", players);
-            Object.keys(players).forEach((id) => {
-                console.log("Adding player:", id, players[id]);
-                const player = players[id];
-                if (id === this.socket.id) {
-                    player.opts.isLocal = true;
-                }
+    public watchNewPlayers(
+        createPlayer: (
+            id: string,
+            x: number,
+            y: number,
+            opts: { isLocal: boolean },
+        ) => void,
+        destroyPlayer: (id: string) => void,
+    ) {
+        this.socket.on(
+            "currentPlayers",
+            (players: Record<string, PlayerDto>) => {
+                Object.keys(players).forEach((id) => {
+                    const player: PlayerDto = players[id];
+                    if (id === this.socket.id) {
+                        player.opts!.isLocal = true;
+                    }
 
-                createPlayer(player.id, player.x, player.y, player.opts);
-            });
-        });
+                    createPlayer(player.id, player.x, player.y, player.opts);
+                });
+            },
+        );
 
-        this.socket.on("newPlayer", (data: any) => {
+        this.socket.on("newPlayer", (data: PlayerDto) => {
             console.log("New player joined", data);
 
             createPlayer(data.id, data.x, data.y, data.opts);
@@ -49,8 +60,8 @@ export class multiplayer {
         });
     }
 
-    public watchPlayerMovement(players: Map<string, any>) {
-        this.socket.on("playerMoved", (player: any) => {
+    public watchPlayerMovement(players: Map<string, Player>) {
+        this.socket.on("playerMoved", (player: PlayerDto) => {
             const targetPlayer = players.get(player.id);
             if (targetPlayer) {
                 targetPlayer.targetPos = {
