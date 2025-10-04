@@ -3,7 +3,7 @@ import { Player } from "../player/_types";
 import { PlayerDto } from "./_types";
 
 export class Multiplayer {
-    socket: SocketIOClient.Socket = io("http://localhost:3000", {
+    socket: SocketIOClient.Socket = io("http://128.199.145.173:3000", {
         autoConnect: false,
     });
 
