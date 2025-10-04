@@ -1,5 +1,5 @@
 import Phaser, { Scene } from "phaser";
-import { Multiplayer } from "../multiplayer/Multiplayer";
+import { Multiplayer } from "../multiplayer/multiplayer";
 
 // let sendAccumulator = 0;
 // const SEND_INTERVAL = 1000 / 15; // ~15Hz

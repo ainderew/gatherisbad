@@ -1,6 +1,6 @@
 import { Scene } from "phaser";
-import Player from "../player/Player";
-import { Multiplayer } from "../multiplayer/Multiplayer";
+import Player from "../player/player";
+import { Multiplayer } from "../multiplayer/multiplayer";
 
 export class Game extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;
