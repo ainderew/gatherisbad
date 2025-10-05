@@ -1,9 +1,10 @@
 import io from "socket.io-client";
 import { Player } from "../player/_types";
 import { PlayerDto } from "./_types";
+import { CONFIG } from "@/common/utils/config";
 
 export class Multiplayer {
-    socket: SocketIOClient.Socket = io("http://128.199.145.173:3000", {
+    socket: SocketIOClient.Socket = io(CONFIG.SERVER_URL, {
         autoConnect: false,
     });
 

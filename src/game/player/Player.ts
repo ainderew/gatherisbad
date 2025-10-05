@@ -42,11 +42,16 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         scene.add.existing(this);
         scene.physics.add.existing(this);
 
-        this.setCollideWorldBounds(true);
+        this.setCollideWorldBounds(false);
         this.setDrag(600, 600);
         this.setMaxVelocity(300, 300);
         this.setBounce(0.1);
         this.setScale(3);
+        this.setPushable(false);
+
+        const w = Math.round(this.width * 0.2);
+        const h = Math.round(this.height * 0.2);
+        this.body!.setSize(w, h, true);
 
         this.id = id;
         this.scene = scene;
@@ -66,7 +71,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
 
         this.nameText = scene.add
-            .text(x, y - 30, "Andrew", {
+            .text(x, y - 40, "Andrew", {
                 font: "16px Arial",
                 color: "#ffffff",
                 stroke: "#000000",
@@ -76,24 +81,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.nameText.setDepth(10);
 
-        this.startAnimation();
-        this.idle();
+        this.idleAnimation();
     }
 
-    public startAnimation() {
-        this.scene.anims.create({
-            key: "idle",
-            frames: this.scene.anims.generateFrameNumbers("char", {
-                start: 0,
-                end: 5,
-            }),
-            frameRate: 6,
-            repeat: -1,
-        });
-    }
-
-    public idle() {
+    public idleAnimation() {
         this.anims.play("idle");
+    }
+
+    private walkAnimation() {
+        this.anims.play("walk");
     }
 
     public update() {
@@ -102,7 +98,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         } else {
             this.interpolateRemote();
         }
-        this.nameText.setPosition(this.x, this.y - 30);
+        this.nameText.setPosition(this.x, this.y - 40);
     }
 
     private updateInput() {
@@ -118,6 +114,22 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         if (up) vy -= this.moveSpeed;
         if (down) vy += this.moveSpeed;
 
+        if (left || right || up || down) {
+            if (
+                this.anims.currentAnim!.key === "idle" &&
+                this.anims.isPlaying
+            ) {
+                this.walkAnimation();
+            }
+        } else {
+            if (
+                this.anims.currentAnim!.key === "walk" &&
+                this.anims.isPlaying
+            ) {
+                this.idleAnimation();
+            }
+        }
+
         // normalize diagonal movement so speed is consistent
         if (vx !== 0 && vy !== 0) {
             vx *= Math.SQRT1_2;
@@ -125,24 +137,28 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
 
         this.setVelocity(vx, vy);
-
-        this.Multiplayer.emitPlayerMovement({
-            x: this.x,
-            y: this.y,
-            vx,
-            vy,
-            id: this.Multiplayer.socket.id,
-            opts: { isLocal: true },
-        });
-
-        // Optionally, notify the server of new state here (throttled).
-        // e.g. this.scene.networkSend('move', { id: this.id, x: this.x, y: this.y, vx, vy })
     }
 
     private interpolateRemote() {
         if (!this.targetPos) return; // no update yet
 
-        const lerpFactor = 1;
+        if (this.x != this.targetPos.x || this.y != this.targetPos.y) {
+            if (
+                this.anims.currentAnim!.key === "idle" &&
+                this.anims.isPlaying
+            ) {
+                this.walkAnimation();
+            }
+        } else {
+            if (
+                this.anims.currentAnim!.key === "walk" &&
+                this.anims.isPlaying
+            ) {
+                this.idleAnimation();
+            }
+        }
+
+        const lerpFactor = 0.1;
         this.x += (this.targetPos.x - this.x) * lerpFactor;
         this.y += (this.targetPos.y - this.y) * lerpFactor;
     }
