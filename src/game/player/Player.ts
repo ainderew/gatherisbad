@@ -1,8 +1,4 @@
 import Phaser, { Scene } from "phaser";
-import { Multiplayer } from "../multiplayer/multiplayer";
-
-// let sendAccumulator = 0;
-// const SEND_INTERVAL = 1000 / 15; // ~15Hz
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
     id: string;
@@ -20,7 +16,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     moveSpeed: number;
     isLocal: boolean = true;
     cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
-    Multiplayer;
 
     wasd?: {
         up: Phaser.Input.Keyboard.Key;
@@ -55,7 +50,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.id = id;
         this.scene = scene;
-        this.Multiplayer = new Multiplayer();
 
         this.moveSpeed = 300;
         this.isLocal = ops.isLocal;

@@ -1,6 +1,7 @@
 import { Scene } from "phaser";
 import { Player } from "../player/player";
 import { Multiplayer } from "../multiplayer/multiplayer";
+import { AudioChat } from "@/communication/audioChat/audioChat";
 
 export class Game extends Scene {
     //Game setup
@@ -19,10 +20,13 @@ export class Game extends Scene {
     lastTick: number = 0;
     Hz: number = 1000 / 30; // 20hz
 
+    //communication
+    audioChat;
     constructor() {
         super("Game");
         this.players = new Map();
         this.multiplayer = new Multiplayer();
+        this.audioChat = new AudioChat();
     }
 
     preload() {
@@ -62,6 +66,11 @@ export class Game extends Scene {
             this.createPlayer.bind(this),
             this.destroyPlayer.bind(this),
         );
+
+        this.audioChat.connectToServer();
+        this.audioChat.joinVoiceChat();
+        this.audioChat.watchNewProducers();
+
         this.multiplayer.watchPlayerMovement(this.players);
 
         this.background = this.add.image(512, 384, "background");
