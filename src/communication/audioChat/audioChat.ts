@@ -24,8 +24,11 @@ export class AudioChat {
     device: Device | null = null;
     sendTransport: Transport | null = null;
     recvTransport: Transport | null = null;
+    recvTransportConnected: boolean = false;
 
-    constructor() {
+    constructor(
+        private audioElementsSetter: (audioElement: HTMLAudioElement) => void,
+    ) {
         console.log("AudioChat initialized");
         this.device = new Device();
     }
@@ -112,104 +115,148 @@ export class AudioChat {
 
         await this.sendTransport.produce({ track: audioTrack });
 
-        console.log("MF YOU Joined voice chat - now producing audio");
+        console.log("Joined voice chat - now producing audio");
+
+        const existingProducers = await new Promise<{ producerId: string }[]>(
+            (resolve) => {
+                this.socket.emit("getProducers", {}, resolve);
+            },
+        );
+
+        console.log("Existing producers:", existingProducers);
+
+        for (const producer of existingProducers) {
+            await this.consumeProducer(producer.producerId);
+        }
     }
 
     public async watchNewProducers() {
         this.socket.on("newProducer", async (data: { producerId: string }) => {
-            console.log("new producer detected:", data.producerId);
+            console.log("New producer detected:", data.producerId);
+            await this.consumeProducer(data.producerId);
+        });
+    }
 
-            try {
-                if (!this.recvTransport) {
-                    const recvTransportInfo: TransportOptions =
-                        await new Promise((resolve) => {
-                            this.socket.emit(
-                                "createTransport",
-                                { type: "recv" },
-                                resolve,
-                            );
-                        });
+    private async createRecvTransport() {
+        if (this.recvTransport) {
+            return;
+        }
 
-                    this.recvTransport =
-                        this.device!.createRecvTransport(recvTransportInfo);
+        const recvTransportInfo: TransportOptions = await new Promise(
+            (resolve) => {
+                this.socket.emit("createTransport", { type: "recv" }, resolve);
+            },
+        );
 
-                    this.recvTransport.on(
-                        "connect",
-                        async (
-                            {
-                                dtlsParameters,
-                            }: { dtlsParameters: DtlsParameters },
-                            callback: () => void,
-                            errback: (err: Error) => void,
-                        ) => {
-                            try {
-                                await new Promise((resolve) => {
-                                    this.socket.emit(
-                                        "connectTransport",
-                                        {
-                                            transportId: this.recvTransport!.id,
-                                            dtlsParameters,
-                                        },
-                                        resolve,
-                                    );
-                                });
-                                callback();
-                            } catch (err) {
-                                errback(err as Error);
-                            }
-                        },
-                    );
-                }
+        this.recvTransport =
+            this.device!.createRecvTransport(recvTransportInfo);
 
-                const consumerData: ConsumerServerResponse =
-                    await new Promise<ConsumerServerResponse>((resolve) => {
+        this.recvTransport.on(
+            "connect",
+            async (
+                { dtlsParameters }: { dtlsParameters: DtlsParameters },
+                callback: () => void,
+                errback: (err: Error) => void,
+            ) => {
+                try {
+                    console.log("Connecting recv transport...");
+                    await new Promise((resolve) => {
                         this.socket.emit(
-                            "consume",
+                            "connectTransport",
                             {
-                                producerId: data.producerId,
-                                rtpCapabilities: this.device!.rtpCapabilities,
                                 transportId: this.recvTransport!.id,
+                                dtlsParameters,
                             },
                             resolve,
                         );
                     });
+                    this.recvTransportConnected = true;
+                    console.log("Recv transport connected!");
+                    callback();
+                } catch (err) {
+                    errback(err as Error);
+                }
+            },
+        );
+    }
 
-                const consumer = await this.recvTransport.consume({
-                    id: consumerData.id,
-                    producerId: consumerData.producerId,
-                    kind: consumerData.kind,
-                    rtpParameters: consumerData.rtpParameters,
-                });
+    private async consumeProducer(producerId: string) {
+        try {
+            await this.createRecvTransport();
 
-                await new Promise((resolve) => {
+            console.log("Requesting to consume producer:", producerId);
+
+            const consumerData: ConsumerServerResponse = await new Promise(
+                (resolve) => {
                     this.socket.emit(
-                        "resumeConsumer",
-                        { consumerId: consumer.id },
+                        "consume",
+                        {
+                            producerId: producerId,
+                            rtpCapabilities: this.device!.rtpCapabilities,
+                            transportId: this.recvTransport!.id,
+                        },
                         resolve,
                     );
-                });
+                },
+            );
 
-                // Create remote stream
-                const remoteStream = new MediaStream([consumer.track]);
+            console.log("Consumer data received, consuming...");
 
-                // Method 1: Simple HTML Audio (most reliable)
-                const audioEl = document.createElement("audio");
-                audioEl.srcObject = remoteStream;
-                audioEl.autoplay = true;
-                audioEl.volume = 1.0;
-                audioEl.play();
+            const consumer = await this.recvTransport!.consume({
+                id: consumerData.id,
+                producerId: consumerData.producerId,
+                kind: consumerData.kind,
+                rtpParameters: consumerData.rtpParameters,
+            });
 
-                console.log("Audio should be playing now");
-                console.log(
-                    "Track:",
-                    consumer.track.readyState,
-                    "Enabled:",
-                    consumer.track.enabled,
-                );
-            } catch (error) {
-                console.error("Error:", error);
+            console.log(
+                "Consumer created, waiting for transport connection...",
+            );
+
+            // Wait for transport to be connected before resuming
+            let attempts = 0;
+            while (!this.recvTransportConnected && attempts < 50) {
+                await new Promise((resolve) => setTimeout(resolve, 100));
+                attempts++;
             }
-        });
+
+            if (!this.recvTransportConnected) {
+                console.error("Transport failed to connect after 5 seconds");
+            }
+
+            console.log("Resuming consumer...");
+
+            await new Promise((resolve) => {
+                this.socket.emit(
+                    "resumeConsumer",
+                    { consumerId: consumer.id },
+                    resolve,
+                );
+            });
+
+            console.log("Consumer resumed, creating audio element...");
+
+            const remoteStream = new MediaStream([consumer.track]);
+
+            const audioEl = document.createElement("audio");
+            audioEl.srcObject = remoteStream;
+            audioEl.autoplay = false;
+            audioEl.volume = 1.0;
+            audioEl.muted = false;
+
+            this.audioElementsSetter(audioEl);
+            document.body.appendChild(audioEl);
+
+            console.log("Audio element created and ready");
+            console.log(
+                "Track:",
+                consumer.track.readyState,
+                "Enabled:",
+                consumer.track.enabled,
+            );
+        } catch (error) {
+            console.error("Error consuming producer:", error);
+        }
     }
 
     private async initializeRtpCapabilities() {

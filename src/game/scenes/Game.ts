@@ -1,7 +1,7 @@
 import { Scene } from "phaser";
 import { Player } from "../player/player";
 import { Multiplayer } from "../multiplayer/multiplayer";
-import { AudioChat } from "@/communication/audioChat/audioChat";
+// import { AudioChat } from "@/communication/audioChat/audioChat";
 
 export class Game extends Scene {
     //Game setup
@@ -21,12 +21,12 @@ export class Game extends Scene {
     Hz: number = 1000 / 30; // 20hz
 
     //communication
-    audioChat;
+    // audioChat;
     constructor() {
         super("Game");
         this.players = new Map();
         this.multiplayer = new Multiplayer();
-        this.audioChat = new AudioChat();
+        // this.audioChat = new AudioChat();
     }
 
     preload() {
@@ -67,9 +67,9 @@ export class Game extends Scene {
             this.destroyPlayer.bind(this),
         );
 
-        this.audioChat.connectToServer();
-        this.audioChat.joinVoiceChat();
-        this.audioChat.watchNewProducers();
+        // this.audioChat.connectToServer();
+        // this.audioChat.joinVoiceChat();
+        // this.audioChat.watchNewProducers();
 
         this.multiplayer.watchPlayerMovement(this.players);
 
