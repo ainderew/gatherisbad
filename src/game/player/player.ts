@@ -1,7 +1,14 @@
 import Phaser, { Scene } from "phaser";
+import {
+    AttackAnimationKeys,
+    IdleAnimationKeys,
+    SpriteKeys,
+    WalkAnimationKeys,
+} from "../commmon/enums";
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
     id: string;
+    sprite: string;
     scene: Scene;
     x: number;
     y: number;
@@ -41,6 +48,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.setBounce(0.1);
         this.setScale(3);
         this.setPushable(false);
+        this.sprite = sprite;
 
         //Collision box scaling it's too big by default idk why
         const w = Math.round(this.width * 0.2);
@@ -73,16 +81,31 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             .setOrigin(0.5, 0.5); // center the text
 
         this.nameText.setDepth(10);
+        this.walkAnimation();
 
-        this.idleAnimation();
+        this.setupUiEventListener();
     }
 
     public idleAnimation() {
-        this.anims.play("idle");
+        this.anims.play(IdleAnimationKeys[this.sprite], true);
     }
 
     private walkAnimation() {
-        this.anims.play("walk");
+        this.anims.play(WalkAnimationKeys[this.sprite]);
+    }
+
+    private attackAnimation() {
+        this.anims.play(AttackAnimationKeys[this.sprite], true);
+    }
+
+    private changeSprite() {
+        this.sprite = SpriteKeys.ORC;
+        this.setTexture(SpriteKeys.ORC);
+        this.idleAnimation();
+    }
+
+    private setupUiEventListener() {
+        window.addEventListener("change-sprite", this.changeSprite.bind(this));
     }
 
     public update() {
@@ -99,6 +122,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         const right = this.cursors!.right.isDown || this.wasd!.right.isDown;
         const up = this.cursors!.up.isDown || this.wasd!.up.isDown;
         const down = this.cursors!.down.isDown || this.wasd!.down.isDown;
+        const space = this.cursors!.space.isDown;
 
         let vx = 0;
         let vy = 0;
@@ -106,6 +130,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         if (right) vx += this.moveSpeed;
         if (up) vy -= this.moveSpeed;
         if (down) vy += this.moveSpeed;
+
+        const isAttacking =
+            this.anims.currentAnim?.key === AttackAnimationKeys[this.sprite];
+
+        if (isAttacking && this.anims.isPlaying) {
+            // Don't interrupt attack animation
+            // Optionally prevent movement during attack:
+            return;
+        }
 
         if (left) {
             this.setFlipX(true);
@@ -115,16 +148,21 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         if (left || right || up || down) {
             if (
-                this.anims.currentAnim!.key === "idle" &&
-                this.anims.isPlaying
+                this.anims.currentAnim!.key !== WalkAnimationKeys[this.sprite]
             ) {
                 this.walkAnimation();
             }
+        } else if (space) {
+            if (
+                this.anims.currentAnim!.key !== AttackAnimationKeys[this.sprite]
+            ) {
+                this.attackAnimation();
+            }
         } else {
             if (
-                this.anims.currentAnim!.key === "walk" &&
-                this.anims.isPlaying
+                this.anims.currentAnim!.key !== IdleAnimationKeys[this.sprite]
             ) {
+                console.log("idle");
                 this.idleAnimation();
             }
         }

@@ -1,6 +1,13 @@
 import { Scene } from "phaser";
 import { Player } from "../player/player";
 import { Multiplayer } from "../multiplayer/multiplayer";
+import {
+    AnimationKeys,
+    AttackAnimationKeys,
+    IdleAnimationKeys,
+    SpriteKeys,
+    WalkAnimationKeys,
+} from "../commmon/enums";
 
 export class Game extends Scene {
     //Game setup
@@ -33,16 +40,54 @@ export class Game extends Scene {
         this.load.image("background", "theoria.jpg");
 
         this.load.spritesheet(
-            "char",
-            "characters/Characters/Soldier/Soldier/Soldier.png",
+            SpriteKeys.ORC,
+            "characters/Characters/Orc/OrcWithShadow/Orc.png",
             {
                 frameWidth: 100,
                 frameHeight: 100,
             },
         );
+
         this.load.spritesheet(
-            "char-walk",
+            SpriteKeys.SOLDIER,
+            "characters/Characters/Soldier/SoldierWithShadow/Soldier.png",
+            {
+                frameWidth: 100,
+                frameHeight: 100,
+            },
+        );
+
+        this.load.spritesheet(
+            SpriteKeys.SOLDIER_ATTACK,
+            "characters/Characters/Soldier/SoldierWithShadow/Soldier-Attack01.png",
+            {
+                frameWidth: 100,
+                frameHeight: 100,
+            },
+        );
+
+        this.load.spritesheet(
+            SpriteKeys.ORC_ATTACK,
+            "characters/Characters/Orc/OrcWithShadow/Orc-Attack01.png",
+            {
+                frameWidth: 100,
+                frameHeight: 100,
+            },
+        );
+
+        //Walking
+        this.load.spritesheet(
+            SpriteKeys.SOLDIER_WALK,
             "characters/Characters/Soldier/Soldier/Soldier-Walk.png",
+            {
+                frameWidth: 100,
+                frameHeight: 100,
+            },
+        );
+
+        this.load.spritesheet(
+            SpriteKeys.ORC_WALK,
+            "characters/Characters/Orc/OrcWithShadow/Orc-Walk.png",
             {
                 frameWidth: 100,
                 frameHeight: 100,
@@ -83,7 +128,7 @@ export class Game extends Scene {
             return this.players.get(id);
         }
 
-        const p = new Player(this, id, x, y, "char-walk", {
+        const p = new Player(this, id, x, y, SpriteKeys.SOLDIER, {
             isLocal: opts.isLocal,
         });
 
@@ -131,8 +176,18 @@ export class Game extends Scene {
 
     private startAnimation() {
         this.anims.create({
-            key: "idle",
-            frames: this.anims.generateFrameNumbers("char", {
+            key: AttackAnimationKeys.SOLDIER,
+            frames: this.anims.generateFrameNumbers(SpriteKeys.SOLDIER_ATTACK, {
+                start: 0,
+                end: 5,
+            }),
+            frameRate: 6,
+            repeat: 0,
+        });
+
+        this.anims.create({
+            key: WalkAnimationKeys.SOLDIER,
+            frames: this.anims.generateFrameNumbers(SpriteKeys.SOLDIER_WALK, {
                 start: 0,
                 end: 5,
             }),
@@ -141,13 +196,43 @@ export class Game extends Scene {
         });
 
         this.anims.create({
-            key: "walk",
-            frames: this.anims.generateFrameNumbers("char-walk", {
+            key: IdleAnimationKeys.SOLDIER,
+            frames: this.anims.generateFrameNumbers(SpriteKeys.SOLDIER, {
                 start: 0,
                 end: 5,
             }),
-            frameRate: 10,
+            frameRate: 6,
             repeat: -1,
+        });
+
+        this.anims.create({
+            key: IdleAnimationKeys.ORC,
+            frames: this.anims.generateFrameNumbers(SpriteKeys.ORC, {
+                start: 0,
+                end: 5,
+            }),
+            frameRate: 6,
+            repeat: -1,
+        });
+
+        this.anims.create({
+            key: WalkAnimationKeys.ORC,
+            frames: this.anims.generateFrameNumbers(SpriteKeys.ORC_WALK, {
+                start: 0,
+                end: 5,
+            }),
+            frameRate: 6,
+            repeat: -1,
+        });
+
+        this.anims.create({
+            key: AttackAnimationKeys.ORC,
+            frames: this.anims.generateFrameNumbers(SpriteKeys.ORC_ATTACK, {
+                start: 0,
+                end: 5,
+            }),
+            frameRate: 6,
+            repeat: 0,
         });
     }
 

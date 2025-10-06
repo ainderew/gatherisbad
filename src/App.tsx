@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { IRefPhaserGame, PhaserGame } from "./PhaserGame";
 import AudioButton from "./common/components/AudioButton";
-import UiControls from "./common/components/UiControls";
+import UiControls from "./common/components/UiControls/UiControls";
 
 function App() {
     const phaserRef = useRef<IRefPhaserGame | null>(null);
