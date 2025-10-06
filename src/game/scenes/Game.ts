@@ -2,7 +2,6 @@ import { Scene } from "phaser";
 import { Player } from "../player/player";
 import { Multiplayer } from "../multiplayer/multiplayer";
 import {
-    AnimationKeys,
     AttackAnimationKeys,
     IdleAnimationKeys,
     SpriteKeys,
