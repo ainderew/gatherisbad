@@ -1,7 +1,6 @@
 import { Scene } from "phaser";
 import { Player } from "../player/player";
 import { Multiplayer } from "../multiplayer/multiplayer";
-// import { AudioChat } from "@/communication/audioChat/audioChat";
 
 export class Game extends Scene {
     //Game setup
@@ -20,22 +19,18 @@ export class Game extends Scene {
     lastTick: number = 0;
     Hz: number = 1000 / 30; // 20hz
 
-    //communication
-    // audioChat;
     constructor() {
         super("Game");
         this.players = new Map();
         this.multiplayer = new Multiplayer();
-        // this.audioChat = new AudioChat();
     }
 
     preload() {
-        //  Load the assets for the game - Replace with your own assets
         this.load.setPath("assets");
 
         this.load.image("logo", "logo.png");
         this.load.image("star", "star.png");
-        this.load.image("background", "logo.png");
+        this.load.image("background", "theoria.jpg");
 
         this.load.spritesheet(
             "char",
@@ -66,17 +61,12 @@ export class Game extends Scene {
             this.createPlayer.bind(this),
             this.destroyPlayer.bind(this),
         );
-
-        // this.audioChat.connectToServer();
-        // this.audioChat.joinVoiceChat();
-        // this.audioChat.watchNewProducers();
-
         this.multiplayer.watchPlayerMovement(this.players);
 
         this.background = this.add.image(512, 384, "background");
 
         // Camera setup
-        this.cameras.main.setBounds(0, 0, 1024, 768);
+        // this.cameras.main.setBounds(0, 0, 1024, 768);
         this.physics.world.setBounds(0, 0, 1024, 768);
 
         this.initializeCollisions();
@@ -167,7 +157,7 @@ export class Game extends Scene {
 
         // Turned off collisions between players for now
         // It makes it harder to move around
-        this.physics.add.collider(this.playersLayer, this.playersLayer);
-        this.playersLayer.runChildUpdate = true;
+        // this.physics.add.collider(this.playersLayer, this.playersLayer);
+        // this.playersLayer.runChildUpdate = true;
     }
 }

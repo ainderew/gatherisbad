@@ -3,13 +3,11 @@ import Phaser, { Scene } from "phaser";
 export class Player extends Phaser.Physics.Arcade.Sprite {
     id: string;
     scene: Scene;
-    speed: number = 100;
     x: number;
     y: number;
 
     targetPos = { x: this.x, y: this.y, t: Date.now() }; // latest server target
     prevPos = { x: this.x, y: this.y, t: Date.now() };
-    interpDelay = 100; // ms
 
     nameText: Phaser.GameObjects.Text;
 
@@ -44,6 +42,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.setScale(3);
         this.setPushable(false);
 
+        //Collision box scaling it's too big by default idk why
         const w = Math.round(this.width * 0.2);
         const h = Math.round(this.height * 0.2);
         this.body!.setSize(w, h, true);
@@ -51,7 +50,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.id = id;
         this.scene = scene;
 
-        this.moveSpeed = 300;
+        this.moveSpeed = 400;
         this.isLocal = ops.isLocal;
 
         if (this.isLocal) {
@@ -107,6 +106,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         if (right) vx += this.moveSpeed;
         if (up) vy -= this.moveSpeed;
         if (down) vy += this.moveSpeed;
+
+        if (left) {
+            this.setFlipX(true);
+        } else if (right) {
+            this.setFlipX(false);
+        }
 
         if (left || right || up || down) {
             if (
