@@ -3,26 +3,21 @@
 
 @custom-variant dark (&:is(.dark *));
 
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+
     font-family: Arial, Helvetica, sans-serif;
 }
 
-#app {
-    width: 100%;
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.spritePosition {
-    margin: 10px 0 0 10px;
-    font-size: 0.8em;
-}
+/* .spritePosition { */
+/*     margin: 10px 0 0 10px; */
+/*     font-size: 0.8em; */
+/* } */
 
 @theme inline {
     --radius-sm: calc(var(--radius) - 4px);
@@ -60,6 +55,7 @@ body {
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
+    --ui-controls-height: 4rem;
 }
 
 :root {
@@ -131,11 +127,57 @@ body {
     --sidebar-ring: oklch(0.556 0 0);
 }
 
-@layer base {
-    * {
-        @apply border-border outline-ring/50;
+/* @layer base { */
+/*     * { */
+/*         @apply border-border outline-ring/50; */
+/*     } */
+/*     body { */
+/*         @apply bg-background text-foreground; */
+/*     } */
+/* } */
+@keyframes drift {
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
     }
-    body {
-        @apply bg-background text-foreground;
+    25% {
+        transform: translate(50px, -50px) scale(1.1);
     }
+    50% {
+        transform: translate(-30px, 30px) scale(0.9);
+    }
+    75% {
+        transform: translate(40px, 20px) scale(1.05);
+    }
+}
+
+.galaxy-animated {
+    position: relative;
+    background: #000;
+    overflow: hidden;
+}
+
+.galaxy-animated::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        circle at 30% 40%,
+        rgba(67, 20, 120, 0.3) 0%,
+        transparent 50%
+    );
+    animation: drift 20s ease-in-out infinite;
+}
+
+.galaxy-animated::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        circle at 70% 60%,
+        rgba(88, 28, 135, 0.25) 0%,
+        transparent 50%
+    );
+    animation: drift 25s ease-in-out infinite reverse;
+    pointer-events: none; /* Add this */
 }

@@ -1,6 +1,7 @@
 import React, { forwardRef, useEffect, useLayoutEffect, useRef } from "react";
 import StartGame from "./game/main";
 import { EventBus } from "./game/EventBus";
+import { User } from "./common/store/_types";
 
 export interface IRefPhaserGame {
     game: Phaser.Game | null;
@@ -9,6 +10,7 @@ export interface IRefPhaserGame {
 
 interface IProps {
     currentActiveScene?: (scene_instance: Phaser.Scene) => void;
+    user: User;
 }
 
 export const PhaserGame = forwardRef<IRefPhaserGame, IProps>(
@@ -62,6 +64,8 @@ export const PhaserGame = forwardRef<IRefPhaserGame, IProps>(
             };
         }, [currentActiveScene, ref]);
 
-        return <div id="game-container"></div>;
+        return (
+            <div id="game-container" className="w-full h-full bg-black"></div>
+        );
     },
 );

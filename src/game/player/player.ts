@@ -8,6 +8,7 @@ import {
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
     id: string;
+    name: string;
     sprite: string;
     scene: Scene;
     x: number;
@@ -31,6 +32,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     constructor(
         scene: Scene,
+        name: string | undefined,
         id: string,
         x: number,
         y: number,
@@ -39,12 +41,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     ) {
         super(scene, x, y, sprite);
 
+        this.name = name as string;
         scene.add.existing(this);
         scene.physics.add.existing(this);
 
         this.setCollideWorldBounds(false);
-        this.setDrag(600, 600);
-        this.setMaxVelocity(300, 300);
+        this.setMaxVelocity(400, 400);
         this.setBounce(0.1);
         this.setScale(3);
         this.setPushable(false);
@@ -72,7 +74,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
 
         this.nameText = scene.add
-            .text(x, y - 40, "Andrew", {
+            .text(x, y - 40, this.name, {
                 font: "16px Arial",
                 color: "#ffffff",
                 stroke: "#000000",

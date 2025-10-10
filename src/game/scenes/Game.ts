@@ -108,6 +108,7 @@ export class Game extends Scene {
         this.multiplayer.watchPlayerMovement(this.players);
 
         this.background = this.add.image(512, 384, "background");
+        this.physics.world.fixedStep = false;
 
         // Camera setup
         // this.cameras.main.setBounds(0, 0, 1024, 768);
@@ -119,6 +120,7 @@ export class Game extends Scene {
 
     public createPlayer(
         id: string,
+        name: string | undefined,
         x: number,
         y: number,
         opts: { isLocal: boolean },
@@ -127,7 +129,7 @@ export class Game extends Scene {
             return this.players.get(id);
         }
 
-        const p = new Player(this, id, x, y, SpriteKeys.SOLDIER, {
+        const p = new Player(this, name, id, x, y, SpriteKeys.SOLDIER, {
             isLocal: opts.isLocal,
         });
 

@@ -1,4 +1,4 @@
-export interface Player {
+export interface PlayerInterface {
     x: number;
     y: number;
     vx: number;

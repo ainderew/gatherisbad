@@ -38,7 +38,7 @@ function UiControlsButton({
                     onClick={onClick}
                     variant="outline"
                     size="icon"
-                    className={`cursor-pointer dark text-white hover:bg-blue-600 ${color ?? color} ${round ? "rounded-full" : null} ${sizeMap[size]}`}
+                    className={`cursor-pointer dark text-white bg-neutral-800 hover:bg-blue-600 ${color ?? color} ${round ? "rounded-full" : null} ${sizeMap[size]}`}
                 >
                     {<Icon />}
                 </Button>

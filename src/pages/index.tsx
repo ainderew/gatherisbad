@@ -1,6 +1,5 @@
 import React from "react";
 import Head from "next/head";
-import styles from "@/styles/Home.module.css";
 import dynamic from "next/dynamic";
 
 const AppWithoutSSR = dynamic(() => import("@/App"), { ssr: false });
@@ -17,7 +16,7 @@ export default function Home() {
                 />
                 <link rel="icon" href="/favicon.png" />
             </Head>
-            <main className={`${styles.main}`}>
+            <main className="w-screen h-screen relative">
                 <AppWithoutSSR />
             </main>
         </>
