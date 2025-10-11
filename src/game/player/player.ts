@@ -13,11 +13,22 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     scene: Scene;
     x: number;
     y: number;
+    vx: number;
+    vy: number;
+    isAttacking: boolean;
 
-    targetPos = { x: this.x, y: this.y, t: Date.now() }; // latest server target
+    targetPos = {
+        x: this.x,
+        y: this.y,
+        vx: 0,
+        vy: 0,
+        t: Date.now(),
+    }; // latest server target
     prevPos = { x: this.x, y: this.y, t: Date.now() };
 
     nameText: Phaser.GameObjects.Text;
+    voiceIndicator: Phaser.GameObjects.Image;
+    uiContainer: Phaser.GameObjects.Container;
 
     moveSpeed: number;
     isLocal: boolean = true;
@@ -72,20 +83,53 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
                 right: scene.input.keyboard!.addKey("D"),
             };
         }
-
+        // Create voice indicator (positioned above name)
+        // Create name text (positioned relative to container center)
         this.nameText = scene.add
-            .text(x, y - 40, this.name, {
+            .text(0, 0, this.name, {
+                // Position at 0,0 relative to container
                 font: "16px Arial",
                 color: "#ffffff",
                 stroke: "#000000",
                 strokeThickness: 3,
             })
-            .setOrigin(0.5, 0.5); // center the text
+            .setOrigin(0.5, 0.5);
 
-        this.nameText.setDepth(10);
-        this.walkAnimation();
+        const nameWidth = this.nameText.width;
+        const nameHeight = this.nameText.height;
 
+        const padding = 8;
+
+        const bgWidth = nameWidth + padding * 2;
+        const bgHeight = nameHeight + padding * 2;
+
+        const background = scene.add.graphics();
+        background.fillStyle(0x000000, 0.5); // Black with 50% opacity
+        background.fillRoundedRect(
+            -bgWidth / 2,
+            -bgHeight / 2,
+            bgWidth,
+            bgHeight,
+            8, // Corner radius
+        );
+
+        this.uiContainer = scene.add.container(x, y - 60, [
+            background,
+            this.nameText,
+        ]);
+
+        this.uiContainer.setDepth(10);
+
+        this.idleAnimation();
         this.setupUiEventListener();
+    }
+
+    public showVoiceIndicator() {
+        this.voiceIndicator.setVisible(true);
+    }
+
+    public hideVoiceIndicator() {
+        this.voiceIndicator.setVisible(false);
     }
 
     public idleAnimation() {
@@ -97,6 +141,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     private attackAnimation() {
+        console.log("Trying to attackAnimation");
         this.anims.play(AttackAnimationKeys[this.sprite], true);
     }
 
@@ -116,7 +161,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         } else {
             this.interpolateRemote();
         }
-        this.nameText.setPosition(this.x, this.y - 40);
+        this.uiContainer.setPosition(this.x, this.y - 60);
     }
 
     private updateInput() {
@@ -133,13 +178,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         if (up) vy -= this.moveSpeed;
         if (down) vy += this.moveSpeed;
 
-        const isAttacking =
+        const isAnimateAttacking =
             this.anims.currentAnim?.key === AttackAnimationKeys[this.sprite];
 
-        if (isAttacking && this.anims.isPlaying) {
+        if (isAnimateAttacking && this.anims.isPlaying) {
             // Don't interrupt attack animation
             // Optionally prevent movement during attack:
             return;
+        }
+
+        if (this.isAttacking) {
+            this.isAttacking = false;
         }
 
         if (left) {
@@ -158,6 +207,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             if (
                 this.anims.currentAnim!.key !== AttackAnimationKeys[this.sprite]
             ) {
+                this.isAttacking = true;
                 this.attackAnimation();
             }
         } else {
@@ -176,29 +226,66 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
 
         this.setVelocity(vx, vy);
+        this.vx = vx;
+        this.vy = vy;
     }
 
     private interpolateRemote() {
-        if (!this.targetPos) return; // no update yet
+        const isAnimateAttacking =
+            this.anims.currentAnim?.key === AttackAnimationKeys[this.sprite];
 
-        if (this.x != this.targetPos.x || this.y != this.targetPos.y) {
+        if (isAnimateAttacking && this.anims.isPlaying) {
+            return;
+        }
+
+        if (!this.targetPos) return;
+
+        const now = Date.now();
+        const elapsed = (now - this.targetPos.t) / 1000; // seconds
+
+        const predictedX =
+            this.targetPos.x + (this.targetPos.vx || 0) * elapsed;
+        const predictedY =
+            this.targetPos.y + (this.targetPos.vy || 0) * elapsed;
+
+        const lerpFactor = 0.2;
+        this.x += (predictedX - this.x) * lerpFactor;
+        this.y += (predictedY - this.y) * lerpFactor;
+
+        console.log(this.targetPos.vx);
+        if (this.targetPos.vx < -1) {
+            this.setFlipX(true);
+        } else if (this.targetPos.vx > 1) {
+            this.setFlipX(false);
+        }
+
+        const isMoving =
+            Math.abs(this.targetPos.vx || 0) > 10 ||
+            Math.abs(this.targetPos.vy || 0) > 10;
+
+        if (this.isAttacking) {
             if (
-                this.anims.currentAnim!.key === "idle" &&
-                this.anims.isPlaying
+                this.anims.currentAnim?.key !== AttackAnimationKeys[this.sprite]
+            ) {
+                this.attackAnimation();
+            }
+        } else if (isMoving) {
+            if (
+                this.anims.currentAnim?.key !== WalkAnimationKeys[this.sprite]
             ) {
                 this.walkAnimation();
             }
         } else {
             if (
-                this.anims.currentAnim!.key === "walk" &&
-                this.anims.isPlaying
+                this.anims.currentAnim?.key !== IdleAnimationKeys[this.sprite]
             ) {
                 this.idleAnimation();
             }
         }
+    }
 
-        const lerpFactor = 0.1;
-        this.x += (this.targetPos.x - this.x) * lerpFactor;
-        this.y += (this.targetPos.y - this.y) * lerpFactor;
+    public destroy() {
+        this.uiContainer.destroy();
+        super.destroy();
     }
 }

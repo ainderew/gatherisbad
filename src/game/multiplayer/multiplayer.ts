@@ -75,6 +75,7 @@ export class Multiplayer {
 
     public watchPlayerMovement(players: Map<string, PlayerInterface>) {
         this.socket.on("playerMoved", (player: PlayerDto) => {
+            console.log(player.isAttacking);
             const targetPlayer = players.get(player.id);
             if (targetPlayer) {
                 targetPlayer.targetPos = {
@@ -84,6 +85,8 @@ export class Multiplayer {
                     vy: player.vy,
                     t: Date.now(),
                 };
+
+                targetPlayer.isAttacking = player.isAttacking;
             }
         });
     }

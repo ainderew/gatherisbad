@@ -9,6 +9,7 @@ function SplashScreen() {
 
     function handleNameInput() {
         updateUser({ name });
+        localStorage.setItem("user", JSON.stringify({ name }));
     }
     return (
         <div className="splash galaxy-animated w-full h-full flex justify-center items-center text-white">
@@ -17,6 +18,7 @@ function SplashScreen() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     type="text"
+                    maxLength={13}
                     placeholder="Display Name"
                 />
                 <Button

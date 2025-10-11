@@ -37,6 +37,7 @@ export class Game extends Scene {
         this.load.image("logo", "logo.png");
         this.load.image("star", "star.png");
         this.load.image("background", "theoria.jpg");
+        this.load.image("active-voice", "sound.png");
 
         this.load.spritesheet(
             SpriteKeys.ORC,
@@ -100,22 +101,19 @@ export class Game extends Scene {
     }
 
     create() {
-        this.startAnimation();
+        this.background = this.add.image(512, 384, "background");
+        this.physics.world.fixedStep = false;
+        this.physics.world.setBounds(0, 0, 1024, 768);
+        // Camera setup
+        // this.cameras.main.setBounds(0, 0, 1024, 768);
+        this.initializeCollisions();
+
         this.multiplayer.watchNewPlayers(
             this.createPlayer.bind(this),
             this.destroyPlayer.bind(this),
         );
         this.multiplayer.watchPlayerMovement(this.players);
-
-        this.background = this.add.image(512, 384, "background");
-        this.physics.world.fixedStep = false;
-
-        // Camera setup
-        // this.cameras.main.setBounds(0, 0, 1024, 768);
-        this.physics.world.setBounds(0, 0, 1024, 768);
-
-        this.initializeCollisions();
-        console.log("Game scene created");
+        this.startAnimation();
     }
 
     public createPlayer(
@@ -155,22 +153,23 @@ export class Game extends Scene {
     }
 
     public update(time: number, delta: number) {
+        const tickRate = time - this.lastTick > this.Hz;
+
         for (const p of this.players.values()) {
             p.update(time, delta);
 
-            if (p.isLocal) {
-                if (time - this.lastTick > this.Hz) {
-                    this.multiplayer.emitPlayerMovement({
-                        x: p.x,
-                        y: p.y,
-                        vx: p.vx,
-                        vy: p.vy,
-                        id: this.localPlayerId,
-                        opts: { isLocal: true },
-                    });
+            if (p.isLocal && tickRate) {
+                this.multiplayer.emitPlayerMovement({
+                    x: p.x,
+                    y: p.y,
+                    isAttacking: p.isAttacking,
+                    vx: p.vx,
+                    vy: p.vy,
+                    id: this.localPlayerId,
+                    opts: { isLocal: true },
+                });
 
-                    this.lastTick = time;
-                }
+                this.lastTick = time;
             }
         }
     }

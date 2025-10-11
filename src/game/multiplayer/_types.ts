@@ -3,6 +3,7 @@ export interface PlayerDto {
     name?: string;
     x: number;
     y: number;
+    isAttacking: boolean;
     vx: number;
     vy: number;
     t?: Date;

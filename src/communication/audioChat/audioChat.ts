@@ -1,5 +1,3 @@
-import { CONFIG } from "@/common/utils/config";
-import io from "socket.io-client";
 import { Device } from "mediasoup-client";
 import {
     RtpCapabilities,
@@ -8,6 +6,7 @@ import {
     RtpParameters,
     Transport,
 } from "mediasoup-client/types";
+import { MediaTransportService } from "../mediaTransportService/mediaTransportServive";
 
 interface ConsumerServerResponse {
     id: string;
@@ -17,9 +16,7 @@ interface ConsumerServerResponse {
 }
 
 export class AudioChat {
-    socket: SocketIOClient.Socket = io(CONFIG.SFU_SERVER_URL, {
-        autoConnect: false,
-    });
+    socket: SocketIOClient.Socket;
 
     device: Device | null = null;
     sendTransport: Transport | null = null;
@@ -29,6 +26,7 @@ export class AudioChat {
     constructor(
         private audioElementsSetter: (audioElement: HTMLAudioElement) => void,
     ) {
+        this.socket = MediaTransportService.getInstance().socket;
         console.log("AudioChat initialized");
         this.device = new Device();
     }
@@ -159,7 +157,6 @@ export class AudioChat {
                 errback: (err: Error) => void,
             ) => {
                 try {
-                    console.log("Connecting recv transport...");
                     await new Promise((resolve) => {
                         this.socket.emit(
                             "connectTransport",
