@@ -35,7 +35,7 @@ function VideoContainer({
                     bg-black
                     ${
                         isExpanded
-                            ? "fixed w-[90vw] h-[85vh] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 border-4 border-blue-500 shadow-2xl"
+                            ? "fixed w-[80vw] h-[85vh] top-1/2 right-20  -translate-y-1/2 z-50 border-4 border-blue-500 shadow-2xl"
                             : "relative w-48 h-32 cursor-pointer border-2 border-white/70 hover:border-blue-400 hover:scale-105"
                     }
                 `}

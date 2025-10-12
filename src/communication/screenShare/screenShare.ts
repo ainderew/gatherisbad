@@ -48,6 +48,11 @@ export class ScreenShareService {
             track: videoTrack,
         });
 
+        videoTrack.onended = () => {
+            console.log("Screen sharing has been stopped by the user.");
+            this.stopScreenShare();
+        };
+
         return stream;
     }
 

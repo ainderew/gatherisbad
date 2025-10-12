@@ -92,10 +92,10 @@ function ScreenShareUi() {
 
             <div
                 className={`
-                    fixed flex gap-4 z-20 transition-all duration-300 ease-in-out
+                    fixed flex gap-4 transition-all duration-300 ease-in-out z-90
                     ${
                         hasExpandedVideo
-                            ? "bottom-6 left-1/2 -translate-x-1/2 flex-row"
+                            ? "left-10 top-1/2 -translate-y-1/2 flex-col"
                             : "top-5 left-5 flex-col"
                     }
                     ${hasExpandedVideo && collapsedVideos.length > 3 ? "overflow-x-auto max-w-[90vw]" : ""}
