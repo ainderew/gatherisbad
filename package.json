@@ -26,7 +26,8 @@
         "build": "node log.js build & next build",
         "dev-nolog": "next dev -p 8080",
         "build-nolog": "next build",
-        "start": "next start -p 8080"
+        "start": "next start -p 8080",
+        "lint": "eslint 'src/**/*.{ts,tsx}' --fix"
     },
     "dependencies": {
         "@radix-ui/react-avatar": "^1.1.10",

@@ -7,7 +7,6 @@ import {
     PhoneMissed,
     Sparkles,
     Volume2,
-    MonitorUp,
     ScreenShare as ScreenShareIcon,
 } from "lucide-react";
 import useUiControls from "./hooks/useUiControls";
@@ -22,12 +21,12 @@ function UiControls() {
 
     const handleScreenShare = async () => {
         try {
-            await ScreenShareService.startScreenShare();
+            const screenShare = ScreenShareService.getInstance();
+            screenShare.startScreenShare();
             console.log("Screen sharing started successfully");
         } catch (error) {
             console.error("Screen share error:", error);
 
-            // ✅ Show user-friendly error message
             if (error instanceof Error) {
                 if (error.name === "NotAllowedError") {
                     alert("Screen sharing permission denied");

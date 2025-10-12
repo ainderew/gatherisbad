@@ -17,6 +17,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     vy: number;
     isAttacking: boolean;
 
+    playerProducerIds: string[];
+
     targetPos = {
         x: this.x,
         y: this.y,
@@ -104,7 +106,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         const bgHeight = nameHeight + padding * 2;
 
         const background = scene.add.graphics();
-        background.fillStyle(0x000000, 0.5); // Black with 50% opacity
+        background.fillStyle(0x000000, 0.7); // Black with 50% opacity
         background.fillRoundedRect(
             -bgWidth / 2,
             -bgHeight / 2,
@@ -252,7 +254,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.x += (predictedX - this.x) * lerpFactor;
         this.y += (predictedY - this.y) * lerpFactor;
 
-        console.log(this.targetPos.vx);
         if (this.targetPos.vx < -1) {
             this.setFlipX(true);
         } else if (this.targetPos.vx > 1) {

@@ -13,13 +13,11 @@ export default function AudioButton() {
     );
 
     useEffect(() => {
-        audioChat.connectToServer();
+        audioChat.initializeAudioChat();
         audioChat.joinVoiceChat();
         audioChat.watchNewProducers();
 
-        return () => {
-            audioChat.disconnectFromServer();
-        };
+        return () => {};
     }, [audioChat]);
 
     useEffect(() => {

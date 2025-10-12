@@ -1,24 +1,30 @@
+import { Producer } from "mediasoup-client/types";
 import { MediaTransportService } from "../mediaTransportService/mediaTransportServive";
 import { ScreenShareEvents } from "./_enums";
-import { Room } from "./_types";
-import { Device } from "mediasoup-client";
 
 export class ScreenShareService {
-    private static _socket: SocketIOClient.Socket;
-    static device: Device;
-    static roomId: Room;
-    static producer;
-    static consumers;
+    private sfuService: MediaTransportService;
+    private screenProducer: Producer | null = null;
+    private currentStream: MediaStream | null = null;
+    public static instance: ScreenShareService | null = null;
 
-    private static get socket(): SocketIOClient.Socket {
-        if (!this._socket) {
-            this._socket = MediaTransportService.getInstance().socket;
-        }
-
-        return this._socket;
+    constructor() {
+        this.sfuService = MediaTransportService.getInstance();
     }
 
-    public static async startScreenShare() {
+    public static getInstance() {
+        if (!this.instance) {
+            this.instance = new ScreenShareService();
+        }
+
+        return this.instance;
+    }
+
+    public async startScreenShare() {
+        if (this.screenProducer) {
+            return this.currentStream;
+        }
+
         const stream = await navigator.mediaDevices.getDisplayMedia({
             video: {
                 displaySurface: "monitor", // Hint preference (user can override)
@@ -34,8 +40,30 @@ export class ScreenShareService {
             },
         });
 
-        this.socket.emit(ScreenShareEvents.startScreenShare, stream);
+        this.currentStream = stream;
+        const videoTrack = stream.getVideoTracks()[0];
+
+        this.sfuService.socket.emit(ScreenShareEvents.startScreenShare, stream);
+        this.screenProducer = await this.sfuService.sendTransport!.produce({
+            track: videoTrack,
+        });
 
         return stream;
+    }
+
+    public stopScreenShare(): void {
+        if (this.currentStream) {
+            this.currentStream.getTracks().forEach((track) => track.stop());
+            this.currentStream = null;
+        }
+        if (this.screenProducer) {
+            this.screenProducer.close();
+            this.screenProducer = null;
+        }
+
+        // if (this.systemAudioProducer) {
+        //     this.systemAudioProducer.close();
+        //     this.systemAudioProducer = null;
+        // }
     }
 }

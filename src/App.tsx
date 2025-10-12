@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { IRefPhaserGame, PhaserGame } from "./PhaserGame";
 import AudioButton from "./common/components/AudioButton";
 import UiControls from "./common/components/UiControls/UiControls";
@@ -7,17 +7,23 @@ import useUserStore from "./common/store/useStore";
 import { User } from "./common/store/_types";
 import { MediaTransportService } from "./communication/mediaTransportService/mediaTransportServive";
 import ScreenShareUi from "./common/components/ScreenShare/ScreenShareUi";
-import { ScreenShareService } from "./communication/screenShare/screenShare";
+import { ScreenShareViewer } from "./communication/screenShare/screenShareViewer";
 
 function App() {
+    const [isInitialized, setIsInitialized] = useState(false);
     useEffect(() => {
-        const transport = MediaTransportService.getInstance();
-        transport.connect();
+        const init = async () => {
+            const transport = MediaTransportService.getInstance();
+            transport.connect();
+            await transport.initializeSfu();
 
-        // Optional: cleanup on unmount
-        return () => {
-            transport.disconnect();
+            const screenShare = ScreenShareViewer.getInstance();
+            screenShare.loadExistingProducers();
+
+            setIsInitialized(true);
         };
+
+        init();
     }, []);
 
     const phaserRef = useRef<IRefPhaserGame | null>(null);
@@ -40,11 +46,12 @@ function App() {
     const user = useUserStore((state) => state.user);
 
     if (!user.name) return <SplashScreen />;
+    if (!isInitialized) return <div>Loading...</div>;
 
     return (
         <div
             id="app"
-            className="w-full h-full grow flex flex-col items-center justify-end bg-black"
+            className="w-full h-full grow flex flex-col items-center justify-end bg-black relative"
         >
             <PhaserGame
                 ref={phaserRef}

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Textarea } from "@/components/ui/textarea";
 
 function ChatWindow({ isChatWindowOpen }: { isChatWindowOpen: boolean }) {

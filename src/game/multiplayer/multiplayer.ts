@@ -11,10 +11,7 @@ export class Multiplayer {
 
     constructor() {
         const name = useUserStore.getState().user.name;
-        console.log("Multiplayer initialized");
         this.socket.on("connect", () => {
-            console.log("Connected to server");
-
             console.log("Connecting as: ", name);
             this.socket.emit("playerJoined", { playerName: name });
         });
@@ -49,6 +46,7 @@ export class Multiplayer {
                     const player: PlayerDto = players[id];
                     if (id === this.socket.id) {
                         player.opts!.isLocal = true;
+                        player.name = "You";
                     }
 
                     createPlayer(
@@ -75,7 +73,6 @@ export class Multiplayer {
 
     public watchPlayerMovement(players: Map<string, PlayerInterface>) {
         this.socket.on("playerMoved", (player: PlayerDto) => {
-            console.log(player.isAttacking);
             const targetPlayer = players.get(player.id);
             if (targetPlayer) {
                 targetPlayer.targetPos = {

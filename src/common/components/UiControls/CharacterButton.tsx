@@ -1,6 +1,5 @@
 import React from "react";
 import useUserStore from "@/common/store/useStore";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 function CharacterButton() {
     const user = useUserStore((state) => state.user);
