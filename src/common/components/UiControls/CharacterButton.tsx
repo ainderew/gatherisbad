@@ -1,8 +1,9 @@
 import React from "react";
 import useUserStore from "@/common/store/useStore";
+import { UserStore } from "@/common/store/_types";
 
 function CharacterButton() {
-    const user = useUserStore((state) => state.user);
+    const user = useUserStore((state: UserStore) => state.user);
 
     return (
         <div className="container text-white font-light bg-neutral-800 p-2 rounded-xl w-40 flex items-center gap-7">

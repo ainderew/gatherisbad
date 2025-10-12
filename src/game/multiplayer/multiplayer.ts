@@ -12,7 +12,6 @@ export class Multiplayer {
     constructor() {
         const name = useUserStore.getState().user.name;
         this.socket.on("connect", () => {
-            console.log("Connecting as: ", name);
             this.socket.emit("playerJoined", { playerName: name });
         });
     }
@@ -61,8 +60,6 @@ export class Multiplayer {
         );
 
         this.socket.on("newPlayer", (data: PlayerDto) => {
-            console.log("New player joined", data);
-
             createPlayer(data.id, data.name, data.x, data.y, data.opts);
         });
 

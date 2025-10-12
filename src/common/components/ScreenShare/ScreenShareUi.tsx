@@ -15,7 +15,6 @@ function ScreenShareUi() {
 
         function updateScreenState() {
             const vidArray = Array.from(service.videoElements.keys());
-            console.log("📹 Videos updated:", vidArray);
 
             setVideosTracked((prev) => {
                 const newVideos = vidArray.map((vid) => {
@@ -39,8 +38,6 @@ function ScreenShareUi() {
     }, []);
 
     useEffect(() => {
-        console.log("📺 Attaching video elements...");
-
         if (!videosTracked.length) return;
 
         const service = ScreenShareViewer.getInstance();
@@ -50,32 +47,17 @@ function ScreenShareUi() {
             const videoEl = service.videoElements.get(video.producerId);
 
             if (container && videoEl && !container.contains(videoEl)) {
-                // ✅ Clear and append
                 container.innerHTML = "";
                 container.appendChild(videoEl);
 
-                // ✅ Double-check video element has proper styles
                 videoEl.style.width = "100%";
                 videoEl.style.height = "100%";
                 videoEl.style.objectFit = "contain";
-
-                console.log("✅ Video attached:", video.producerId, {
-                    containerDimensions: {
-                        width: container.offsetWidth,
-                        height: container.offsetHeight,
-                    },
-                    videoDimensions: {
-                        width: videoEl.videoWidth,
-                        height: videoEl.videoHeight,
-                    },
-                });
             }
         });
     }, [videosTracked]);
 
     function handleExpand(producerId: string) {
-        console.log("🔄 Toggling expand for:", producerId);
-
         setVideosTracked((prev) => {
             return prev.map((video) => ({
                 ...video,

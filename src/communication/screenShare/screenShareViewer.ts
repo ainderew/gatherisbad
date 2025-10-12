@@ -31,10 +31,8 @@ export class ScreenShareViewer {
                 userName,
             }: {
                 producerId: string;
-                kind: string;
                 userName: string;
             }) => {
-                console.log("📺 New producer detected:", producerId, userName);
                 this.videoOwnerMap[producerId] = userName;
                 await this.consumeProducer(producerId);
             },

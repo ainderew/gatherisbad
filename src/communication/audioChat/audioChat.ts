@@ -20,7 +20,6 @@ export class AudioChat {
          * So the sfu transport and connection does not get accidentally get created
          **/
         console.log("initializeAudioChat");
-
         this.sfuService = MediaTransportService.getInstance();
         console.log("AudioChat initialized");
     }
@@ -35,15 +34,11 @@ export class AudioChat {
 
         await this.sfuService.sendTransport!.produce({ track: audioTrack });
 
-        console.log("Joined voice chat - now producing audio");
-
         const existingProducers = await new Promise<{ producerId: string }[]>(
             (resolve) => {
                 this.sfuService.socket.emit("getProducers", {}, resolve);
             },
         );
-
-        console.log("Existing producers:", existingProducers);
 
         for (const producer of existingProducers) {
             await this.consumeProducer(producer.producerId);
@@ -54,7 +49,6 @@ export class AudioChat {
         this.sfuService.socket.on(
             "newProducer",
             async (data: { producerId: string }) => {
-                console.log("New producer detected:", data.producerId);
                 await this.consumeProducer(data.producerId);
             },
         );
@@ -94,8 +88,6 @@ export class AudioChat {
             // if (!this.recvTransportConnected) {
             //     console.error("Transport failed to connect after 5 seconds");
             // }
-
-            console.log("Resuming consumer...");
 
             await new Promise((resolve) => {
                 this.sfuService.socket.emit(

@@ -4,7 +4,7 @@ import AudioButton from "./common/components/AudioButton";
 import UiControls from "./common/components/UiControls/UiControls";
 import SplashScreen from "./common/components/Splash/SplashScreen";
 import useUserStore from "./common/store/useStore";
-import { User } from "./common/store/_types";
+import { User, UserStore } from "./common/store/_types";
 import { MediaTransportService } from "./communication/mediaTransportService/mediaTransportServive";
 import ScreenShareUi from "./common/components/ScreenShare/ScreenShareUi";
 import { ScreenShareViewer } from "./communication/screenShare/screenShareViewer";
@@ -34,7 +34,7 @@ function App() {
         return false;
     };
 
-    const setUser = useUserStore((state) => state.setUser);
+    const setUser = useUserStore((state: UserStore) => state.setUser);
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
@@ -43,7 +43,7 @@ function App() {
         }
     }, [setUser]);
 
-    const user = useUserStore((state) => state.user);
+    const user = useUserStore((state: UserStore) => state.user);
 
     if (!user.name) return <SplashScreen />;
     if (!isInitialized) return <div>Loading...</div>;

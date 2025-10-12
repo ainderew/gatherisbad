@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import useUserStore from "@/common/store/useStore";
+import { UserStore } from "@/common/store/_types";
 
 function SplashScreen() {
-    const updateUser = useUserStore((state) => state.updateUser);
+    const updateUser = useUserStore((state: UserStore) => state.updateUser);
     const [name, setName] = useState("");
 
     function handleNameInput() {
