@@ -15,6 +15,8 @@ export class AudioChat {
     public isMuted: boolean = true;
     public static instance: AudioChat | null = null;
     private audioElementsSetter: (audioElement: HTMLAudioElement) => void;
+    private audioContext: AudioContext;
+    private audioDestination?: MediaStreamAudioDestinationNode;
 
     constructor() {
         /**
@@ -42,9 +44,18 @@ export class AudioChat {
 
     public async joinVoiceChat() {
         const stream = await navigator.mediaDevices.getUserMedia({
-            audio: true,
+            audio: {
+                channelCount: 1,
+                sampleRate: 48000,
+                sampleSize: 16,
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true,
+            },
         });
-        const [audioTrack] = stream.getAudioTracks();
+
+        const processedStream = await this.processAudioStream(stream);
+        const [audioTrack] = processedStream.getAudioTracks();
 
         this.audioProducer = await this.sfuService.sendTransport!.produce({
             track: audioTrack,
@@ -137,6 +148,46 @@ export class AudioChat {
         } catch (error) {
             console.error("Error consuming producer:", error);
         }
+    }
+
+    private async processAudioStream(
+        stream: MediaStream,
+    ): Promise<MediaStream> {
+        // Create audio context
+        this.audioContext = new AudioContext({ sampleRate: 48000 });
+
+        // Create source from microphone
+        const source = this.audioContext.createMediaStreamSource(stream);
+
+        // Create a compressor for better dynamic range
+        const compressor = this.audioContext.createDynamicsCompressor();
+        compressor.threshold.value = -50;
+        compressor.knee.value = 40;
+        compressor.ratio.value = 12;
+        compressor.attack.value = 0.003;
+        compressor.release.value = 0.25;
+
+        // Create a gain node for volume control
+        const gainNode = this.audioContext.createGain();
+        gainNode.gain.value = 1.2; // Slight boost
+
+        // Optional: Add a basic high-pass filter to reduce low-frequency noise
+        const highPassFilter = this.audioContext.createBiquadFilter();
+        highPassFilter.type = "highpass";
+        highPassFilter.frequency.value = 80; // Remove rumble below 80Hz
+
+        // Create destination
+        this.audioDestination =
+            this.audioContext.createMediaStreamDestination();
+
+        // Connect the audio pipeline
+        source
+            .connect(highPassFilter)
+            .connect(compressor)
+            .connect(gainNode)
+            .connect(this.audioDestination);
+
+        return this.audioDestination.stream;
     }
 
     public muteMic() {

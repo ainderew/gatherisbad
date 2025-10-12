@@ -1,7 +1,5 @@
 import { Producer } from "mediasoup-client/types";
 import { MediaTransportService } from "../mediaTransportService/mediaTransportServive";
-import { ScreenShareEvents } from "./_enums";
-import { ScreenShareViewer } from "./screenShareViewer";
 
 export class ScreenShareService {
     private sfuService: MediaTransportService;

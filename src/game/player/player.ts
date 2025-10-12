@@ -85,11 +85,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
                 right: scene.input.keyboard!.addKey("D"),
             };
         }
-        // Create voice indicator (positioned above name)
-        // Create name text (positioned relative to container center)
-        this.nameText = scene.add
+
+        this.initializeNameTag();
+        this.idleAnimation();
+        this.setupUiEventListener();
+    }
+
+    public initializeNameTag() {
+        this.nameText = this.scene.add
             .text(0, 0, this.name, {
-                // Position at 0,0 relative to container
                 font: "16px Arial",
                 color: "#ffffff",
                 stroke: "#000000",
@@ -105,8 +109,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         const bgWidth = nameWidth + padding * 2;
         const bgHeight = nameHeight + padding * 2;
 
-        const background = scene.add.graphics();
-        background.fillStyle(0x000000, 0.7); // Black with 50% opacity
+        const background = this.scene.add.graphics();
+        background.fillStyle(0x000000, 0.5); // Black with 50% opacity
         background.fillRoundedRect(
             -bgWidth / 2,
             -bgHeight / 2,
@@ -115,15 +119,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             8, // Corner radius
         );
 
-        this.uiContainer = scene.add.container(x, y - 60, [
+        this.uiContainer = this.scene.add.container(this.x, this.y - 60, [
             background,
             this.nameText,
         ]);
 
         this.uiContainer.setDepth(10);
-
-        this.idleAnimation();
-        this.setupUiEventListener();
     }
 
     public showVoiceIndicator() {
