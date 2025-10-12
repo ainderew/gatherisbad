@@ -1,24 +1,17 @@
 import { AudioChat } from "@/communication/audioChat/audioChat";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function AudioButton() {
     const [audioElements, setAudioElements] = useState<HTMLAudioElement[]>([]);
 
-    const audioChat = useMemo(
-        () =>
-            new AudioChat((audioElement: HTMLAudioElement) =>
-                setAudioElements((prev) => [audioElement, ...prev]),
-            ),
-        [],
-    );
-
     useEffect(() => {
-        audioChat.initializeAudioChat();
-        audioChat.joinVoiceChat();
-        audioChat.watchNewProducers();
-
-        return () => {};
-    }, [audioChat]);
+        const audioChatService = AudioChat.getInstance();
+        audioChatService.initializeAudioChat((audioElement: HTMLAudioElement) =>
+            setAudioElements((prev) => [audioElement, ...prev]),
+        );
+        audioChatService.joinVoiceChat();
+        audioChatService.watchNewProducers();
+    }, []);
 
     useEffect(() => {
         for (const audioEl of audioElements) {

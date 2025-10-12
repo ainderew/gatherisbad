@@ -1,6 +1,7 @@
 import { Producer } from "mediasoup-client/types";
 import { MediaTransportService } from "../mediaTransportService/mediaTransportServive";
 import { ScreenShareEvents } from "./_enums";
+import { ScreenShareViewer } from "./screenShareViewer";
 
 export class ScreenShareService {
     private sfuService: MediaTransportService;
@@ -43,13 +44,16 @@ export class ScreenShareService {
         this.currentStream = stream;
         const videoTrack = stream.getVideoTracks()[0];
 
-        this.sfuService.socket.emit(ScreenShareEvents.startScreenShare, stream);
         this.screenProducer = await this.sfuService.sendTransport!.produce({
             track: videoTrack,
         });
 
         videoTrack.onended = () => {
             console.log("Screen sharing has been stopped by the user.");
+            this.sfuService.socket.emit("producerClosed", {
+                producerId: this.screenProducer!.id,
+                kind: "video", // or "screen"
+            });
             this.stopScreenShare();
         };
 

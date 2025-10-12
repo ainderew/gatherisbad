@@ -1,4 +1,4 @@
-import { RtpParameters } from "mediasoup-client/types";
+import { Producer, RtpParameters } from "mediasoup-client/types";
 import { MediaTransportService } from "../mediaTransportService/mediaTransportServive";
 
 interface ConsumerServerResponse {
@@ -9,12 +9,14 @@ interface ConsumerServerResponse {
 }
 
 export class AudioChat {
-    recvTransportConnected: boolean = false;
-    sfuService: MediaTransportService;
+    // private recvTransportConnected: boolean = false;
+    private sfuService: MediaTransportService;
+    private audioProducer?: Producer;
+    public isMuted: boolean = true;
+    public static instance: AudioChat | null = null;
+    private audioElementsSetter: (audioElement: HTMLAudioElement) => void;
 
-    constructor(
-        private audioElementsSetter: (audioElement: HTMLAudioElement) => void,
-    ) {
+    constructor() {
         /**
          * Doing singleton pattern
          * So the sfu transport and connection does not get accidentally get created
@@ -24,7 +26,19 @@ export class AudioChat {
         console.log("AudioChat initialized");
     }
 
-    public initializeAudioChat() {}
+    public static getInstance() {
+        if (!this.instance) {
+            this.instance = new AudioChat();
+        }
+
+        return this.instance;
+    }
+
+    public initializeAudioChat(
+        setter: (audioElement: HTMLAudioElement) => void,
+    ) {
+        this.audioElementsSetter = setter;
+    }
 
     public async joinVoiceChat() {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -32,7 +46,10 @@ export class AudioChat {
         });
         const [audioTrack] = stream.getAudioTracks();
 
-        await this.sfuService.sendTransport!.produce({ track: audioTrack });
+        this.audioProducer = await this.sfuService.sendTransport!.produce({
+            track: audioTrack,
+        });
+        this.muteMic();
 
         const existingProducers = await new Promise<{ producerId: string }[]>(
             (resolve) => {
@@ -119,6 +136,19 @@ export class AudioChat {
             );
         } catch (error) {
             console.error("Error consuming producer:", error);
+        }
+    }
+
+    public muteMic() {
+        if (this.audioProducer) {
+            this.audioProducer?.pause();
+            this.isMuted = true;
+        }
+    }
+    public unMuteMic() {
+        if (this.audioProducer) {
+            this.audioProducer?.resume();
+            this.isMuted = false;
         }
     }
 }

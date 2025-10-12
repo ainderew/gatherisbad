@@ -37,6 +37,13 @@ export class ScreenShareViewer {
                 await this.consumeProducer(producerId);
             },
         );
+
+        this.service.socket.on(
+            "endScreenShare",
+            ({ producerId }: { producerId: string }) => {
+                this.removeScreenShareVideo(producerId);
+            },
+        );
     }
 
     public async loadExistingProducers(): Promise<void> {
@@ -52,6 +59,7 @@ export class ScreenShareViewer {
             await this.consumeProducer(producerId);
         }
     }
+
     private async consumeProducer(producerId: string): Promise<void> {
         try {
             const consumerData = await new Promise<ConsumerData>((resolve) => {
@@ -117,10 +125,16 @@ export class ScreenShareViewer {
         this.updateComponentStateCallback!();
     }
 
+    public removeScreenShareVideo(producerId: string) {
+        this.videoElements.delete(producerId);
+        this.updateComponentStateCallback!();
+    }
+
     public cleanup(): void {
         this.consumers.forEach((consumer) => consumer.close());
         this.videoElements.forEach((el) => el.remove());
         this.consumers.clear();
         this.videoElements.clear();
+        this.updateComponentStateCallback!();
     }
 }

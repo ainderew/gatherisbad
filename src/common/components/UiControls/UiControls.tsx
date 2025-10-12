@@ -6,18 +6,19 @@ import {
     MessageCircle,
     PhoneMissed,
     Sparkles,
-    Volume2,
+    VideoIcon,
     ScreenShare as ScreenShareIcon,
 } from "lucide-react";
 import useUiControls from "./hooks/useUiControls";
 import ChatWindow from "../TextChat/ChatWindow";
 import CharacterButton from "./CharacterButton";
 import { ScreenShareService } from "@/communication/screenShare/screenShare";
+import { ButtonSizeEnum, ColorEnum } from "./_enums";
 
 function UiControls() {
     const { changeSprite, micControls, toggleChatWindow, isChatWindowOpen } =
         useUiControls();
-    const { isMuted, muteMic } = micControls();
+    const { isMuted, toggleMic } = micControls();
 
     const handleScreenShare = async () => {
         try {
@@ -43,18 +44,23 @@ function UiControls() {
         <div className="h-[var(--ui-controls-height)] w-full flex justify-between items-center bg-primary/80 px-5">
             <div className="controller-container flex gap-4">
                 <CharacterButton />
-                <UiControlsButton icon={Volume2} label={"Mute"} />
                 <UiControlsButton
                     icon={PhoneMissed}
                     label={"Leave Call"}
-                    color={"bg-red-600"}
                     round={true}
-                    size={"large"}
+                    size={ButtonSizeEnum.large}
                 />
                 <UiControlsButton
-                    onClick={muteMic}
+                    icon={VideoIcon}
+                    label={"Share Video"}
+                    size={ButtonSizeEnum.regular}
+                />
+                <UiControlsButton
+                    onClick={toggleMic}
                     icon={isMuted ? MicOff : Mic}
-                    label={"Mute"}
+                    label={"Mute Mic"}
+                    color={isMuted ? ColorEnum.darkRed : ColorEnum.normal}
+                    textColor={isMuted ? ColorEnum.red : ColorEnum.normal}
                 />
                 <UiControlsButton
                     onClick={handleScreenShare}

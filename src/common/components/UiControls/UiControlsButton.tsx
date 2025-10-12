@@ -6,6 +6,7 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ButtonSizeEnum, ColorEnum } from "./_enums";
 
 interface UiControlsButtonProps {
     icon: ForwardRefExoticComponent<
@@ -13,22 +14,37 @@ interface UiControlsButtonProps {
     >;
     label: string;
     color?: string;
+    textColor?: string;
     round?: boolean;
     size?: string;
     onClick?: () => void;
 }
 
-const sizeMap: { [key: string]: string } = {
+const sizeMap: Record<ButtonSizeEnum, string> = {
     large: "h-10 w-10",
+    regular: "h-9 w-9",
     small: "h-8 w-8",
+};
+
+const textColorMap: Record<ColorEnum, string> = {
+    darkRed: "text-red-900",
+    red: "text-red-600",
+    normal: "text-white",
+};
+
+const buttonColorMap: Record<ColorEnum, string> = {
+    darkRed: "bg-red-950",
+    red: "bg-red-600",
+    normal: "bg-neutral-700",
 };
 
 function UiControlsButton({
     icon: Icon,
     label,
-    color,
+    color = ColorEnum.normal,
+    textColor = ColorEnum.normal,
     round = false,
-    size = "regular",
+    size = ButtonSizeEnum.regular,
     onClick,
 }: UiControlsButtonProps) {
     return (
@@ -36,9 +52,14 @@ function UiControlsButton({
             <TooltipTrigger className="cursor-pointer">
                 <Button
                     onClick={onClick}
-                    variant="outline"
+                    variant="default"
                     size="icon"
-                    className={`cursor-pointer dark text-white bg-neutral-800 hover:bg-blue-600 ${color ?? color} ${round ? "rounded-full" : null} ${sizeMap[size]}`}
+                    className={`cursor-pointer dark bg-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 
+                        ${buttonColorMap[color as ColorEnum]} 
+                        ${sizeMap[size as ButtonSizeEnum]} 
+                        ${textColorMap[textColor as ColorEnum]}
+                        ${round ? "rounded-full" : null} 
+                        `}
                 >
                     {<Icon />}
                 </Button>

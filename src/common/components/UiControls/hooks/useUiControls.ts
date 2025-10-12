@@ -1,8 +1,11 @@
+import { AudioChat } from "@/communication/audioChat/audioChat";
 import { useState } from "react";
 
 function useUiControls() {
-    const [isMuted, setIsMuted] = useState(false);
+    const audioService = AudioChat.getInstance();
+
     const [isChatWindowOpen, setIsChatWindowOpen] = useState(false);
+    const [isMuted, setIsMuted] = useState(audioService.isMuted);
 
     //TODO: make helper and enums for this
     function changeSprite() {
@@ -12,16 +15,19 @@ function useUiControls() {
     }
 
     function micControls() {
-        function muteMic() {
-            setIsMuted(!isMuted);
-            // window.dispatchEvent(
-            //     new CustomEvent("mute-mic", { detail: !isMuted }),
-            // );
+        function toggleMic() {
+            setIsMuted((prev) => !prev);
+
+            if (audioService.isMuted) {
+                audioService.unMuteMic();
+            } else {
+                audioService.muteMic();
+            }
         }
 
         return {
             isMuted,
-            muteMic,
+            toggleMic,
         };
     }
 
