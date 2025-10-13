@@ -14,9 +14,17 @@ import CharacterButton from "./CharacterButton";
 import { ScreenShareService } from "@/communication/screenShare/screenShare";
 import { ButtonSizeEnum, ColorEnum } from "./_enums";
 import UiOnlineButton from "./UiOnlineButton";
+import MembersUi from "../Members/MembersUi";
 
 function UiControls() {
-    const { micControls, toggleChatWindow, isChatWindowOpen } = useUiControls();
+    const {
+        micControls,
+        toggleChatWindow,
+        isChatWindowOpen,
+        toggleMembersUi,
+        isMembersUiOpen,
+    } = useUiControls();
+
     const { isMuted, toggleMic } = micControls();
 
     const handleScreenShare = async () => {
@@ -69,7 +77,7 @@ function UiControls() {
             </div>
 
             <div className="chat-buttons-container flex gap-4">
-                <UiOnlineButton onClick={() => console.log("sd")} />
+                <UiOnlineButton onClick={toggleMembersUi} />
                 <UiControlsButton
                     onClick={toggleChatWindow}
                     icon={MessageCircle}
@@ -78,6 +86,10 @@ function UiControls() {
             </div>
 
             <ChatWindow isChatWindowOpen={isChatWindowOpen} />
+            <MembersUi
+                isMembersUiOpen={isMembersUiOpen}
+                onClose={toggleMembersUi}
+            />
         </div>
     );
 }

@@ -5,6 +5,7 @@ function useUiControls() {
     const audioService = AudioChat.getInstance();
 
     const [isChatWindowOpen, setIsChatWindowOpen] = useState(false);
+    const [isMembersUiOpen, setIsMembersUiOpen] = useState(false);
     const [isMuted, setIsMuted] = useState(audioService.isMuted);
 
     function micControls() {
@@ -27,8 +28,15 @@ function useUiControls() {
     function toggleChatWindow() {
         setIsChatWindowOpen(!isChatWindowOpen);
     }
+
+    function toggleMembersUi() {
+        setIsMembersUiOpen(!isMembersUiOpen);
+    }
+
     return {
         micControls,
+        toggleMembersUi,
+        isMembersUiOpen,
         toggleChatWindow,
         isChatWindowOpen,
     };
