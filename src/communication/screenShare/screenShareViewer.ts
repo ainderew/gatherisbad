@@ -108,6 +108,7 @@ export class ScreenShareViewer {
     }
 
     private displayVideo(producerId: string, consumer: Consumer): void {
+        if (!this.updateComponentStateCallback) return;
         const videoEl = document.createElement("video") as HTMLVideoElement;
         videoEl.srcObject = new MediaStream([consumer.track]);
         videoEl.autoplay = true;
@@ -126,11 +127,13 @@ export class ScreenShareViewer {
     }
 
     public removeScreenShareVideo(producerId: string) {
+        if (!this.updateComponentStateCallback) return;
         this.videoElements.delete(producerId);
         this.updateComponentStateCallback!();
     }
 
     public cleanup(): void {
+        if (!this.updateComponentStateCallback) return;
         this.consumers.forEach((consumer) => consumer.close());
         this.videoElements.forEach((el) => el.remove());
         this.consumers.clear();

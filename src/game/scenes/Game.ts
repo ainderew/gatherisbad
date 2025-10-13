@@ -34,6 +34,11 @@ export class Game extends Scene {
     preload() {
         this.load.setPath("assets");
 
+        this.load.image("tiles1", "tiles1.png");
+        this.load.image("tiles2", "tiles2.png");
+        this.load.tilemapTiledJSON("map", "map1.json");
+
+        this.load.image("logo", "logo.png");
         this.load.image("logo", "logo.png");
         this.load.image("star", "star.png");
         this.load.image("background", "theoria.jpg");
@@ -101,12 +106,49 @@ export class Game extends Scene {
     }
 
     create() {
-        this.background = this.add.image(512, 384, "background");
+        // this.background = this.add.image(512, 384, "background");
         this.physics.world.fixedStep = false;
         this.physics.world.setBounds(0, 0, 1024, 768);
         // Camera setup
         // this.cameras.main.setBounds(0, 0, 1024, 768);
-        this.initializeCollisions();
+
+        const map = this.make.tilemap({
+            key: "map",
+            tileWidth: 32,
+            tileHeight: 32,
+        });
+        const tileset = map.addTilesetImage("tiles1", "tiles1")!;
+        const tileset2 = map.addTilesetImage("tiles_2", "tiles2")!;
+        console.log(tileset);
+
+        if (!tileset) {
+            throw new Error("Tileset 'tiles_1' not found!");
+        }
+
+        /**
+         * Don't touch the order it will mess with rendering
+         */
+        const floorLayer = map.createLayer("Floor", [tileset, tileset2], 0, 0)!;
+        const rugLayer = map.createLayer("Rugs", [tileset, tileset2], 0, 0)!;
+        const wallLayer = map.createLayer("Wall", [tileset, tileset2], 0, 0)!;
+        const wDecorationLayer = map.createLayer(
+            "WallDecoration",
+            [tileset, tileset2],
+            0,
+            0,
+        )!;
+        const furnitureLayer = map.createLayer(
+            "Furniture",
+            [tileset, tileset2],
+            0,
+            0,
+        )!;
+        const fDecorationLayer = map.createLayer(
+            "FurnitureDecoration",
+            [tileset, tileset2],
+            0,
+            0,
+        )!;
 
         this.multiplayer.watchNewPlayers(
             this.createPlayer.bind(this),
@@ -114,6 +156,14 @@ export class Game extends Scene {
         );
         this.multiplayer.watchPlayerMovement(this.players);
         this.startAnimation();
+        this.initializeCollisions(
+            wallLayer,
+            floorLayer,
+            furnitureLayer,
+            fDecorationLayer,
+            wDecorationLayer,
+            rugLayer,
+        );
     }
 
     public createPlayer(
@@ -236,13 +286,30 @@ export class Game extends Scene {
         });
     }
 
-    private initializeCollisions() {
+    private initializeCollisions(
+        wallLayer: Phaser.Tilemaps.TilemapLayer,
+        floorLayer: Phaser.Tilemaps.TilemapLayer,
+        furnitureLayer: Phaser.Tilemaps.TilemapLayer,
+        fDecorationLayer: Phaser.Tilemaps.TilemapLayer,
+        wDecorationLayer: Phaser.Tilemaps.TilemapLayer,
+        rugLayer: Phaser.Tilemaps.TilemapLayer,
+    ): void {
         // TODO: organize initialization code
         this.playersLayer = this.physics.add.group();
+        this.physics.add.collider(this.playersLayer, wallLayer);
+        wallLayer.setCollisionBetween(0, 9500, true);
+
+        this.playersLayer.runChildUpdate = true;
+        console.log(
+            floorLayer,
+            furnitureLayer,
+            fDecorationLayer,
+            wDecorationLayer,
+            rugLayer,
+        );
 
         // Turned off collisions between players for now
         // It makes it harder to move around
         // this.physics.add.collider(this.playersLayer, this.playersLayer);
-        // this.playersLayer.runChildUpdate = true;
     }
 }
