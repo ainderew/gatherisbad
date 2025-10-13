@@ -7,13 +7,6 @@ function useUiControls() {
     const [isChatWindowOpen, setIsChatWindowOpen] = useState(false);
     const [isMuted, setIsMuted] = useState(audioService.isMuted);
 
-    //TODO: make helper and enums for this
-    function changeSprite() {
-        window.dispatchEvent(
-            new CustomEvent("change-sprite", { detail: true }),
-        );
-    }
-
     function micControls() {
         function toggleMic() {
             setIsMuted((prev) => !prev);
@@ -36,7 +29,6 @@ function useUiControls() {
     }
     return {
         micControls,
-        changeSprite,
         toggleChatWindow,
         isChatWindowOpen,
     };

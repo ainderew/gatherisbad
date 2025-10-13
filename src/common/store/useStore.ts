@@ -8,10 +8,4 @@ const useUserStore = create<UserStore>((set) => ({
         set((state) => ({ user: { ...state.user, ...updates } })),
 }));
 
-// const usePlayerMapStore = create<Map<string,string[]>>((set) => ({
-//     playerMap: new Map(),
-//         setPlayerMap: (playerMap: Map<string,string[]) => set( playerMap),
-//
-// }))
-
 export default useUserStore;

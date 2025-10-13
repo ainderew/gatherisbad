@@ -61,7 +61,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.setCollideWorldBounds(false);
         this.setMaxVelocity(400, 400);
         this.setBounce(0.1);
-        this.setScale(3);
+        this.setScale(2);
         this.setPushable(false);
         this.sprite = sprite;
 
@@ -119,7 +119,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             8, // Corner radius
         );
 
-        this.uiContainer = this.scene.add.container(this.x, this.y - 60, [
+        this.uiContainer = this.scene.add.container(this.x, this.y - 50, [
             background,
             this.nameText,
         ]);
@@ -140,7 +140,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     private walkAnimation() {
-        this.anims.play(WalkAnimationKeys[this.sprite]);
+        this.anims.play(WalkAnimationKeys[this.sprite], true);
     }
 
     private attackAnimation() {
@@ -164,7 +164,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         } else {
             this.interpolateRemote();
         }
-        this.uiContainer.setPosition(this.x, this.y - 60);
+        this.uiContainer.setPosition(this.x, this.y - 40);
     }
 
     private updateInput() {
@@ -201,9 +201,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
 
         if (left || right || up || down) {
-            if (
-                this.anims.currentAnim!.key !== WalkAnimationKeys[this.sprite]
-            ) {
+            if (up) {
+                this.anims.play(WalkAnimationKeys.ADAM_UP, true);
+            } else if (down) {
+                this.anims.play(WalkAnimationKeys.ADAM_DOWN, true);
+            } else {
                 this.walkAnimation();
             }
         } else if (space) {

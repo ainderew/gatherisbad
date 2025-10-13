@@ -5,7 +5,6 @@ import {
     MicOff,
     MessageCircle,
     PhoneMissed,
-    Sparkles,
     VideoIcon,
     ScreenShare as ScreenShareIcon,
 } from "lucide-react";
@@ -14,10 +13,10 @@ import ChatWindow from "../TextChat/ChatWindow";
 import CharacterButton from "./CharacterButton";
 import { ScreenShareService } from "@/communication/screenShare/screenShare";
 import { ButtonSizeEnum, ColorEnum } from "./_enums";
+import UiOnlineButton from "./UiOnlineButton";
 
 function UiControls() {
-    const { changeSprite, micControls, toggleChatWindow, isChatWindowOpen } =
-        useUiControls();
+    const { micControls, toggleChatWindow, isChatWindowOpen } = useUiControls();
     const { isMuted, toggleMic } = micControls();
 
     const handleScreenShare = async () => {
@@ -70,11 +69,7 @@ function UiControls() {
             </div>
 
             <div className="chat-buttons-container flex gap-4">
-                <UiControlsButton
-                    onClick={changeSprite}
-                    icon={Sparkles}
-                    label={"Change Sprite"}
-                />
+                <UiOnlineButton onClick={() => console.log("sd")} />
                 <UiControlsButton
                     onClick={toggleChatWindow}
                     icon={MessageCircle}

@@ -16,7 +16,7 @@ export class Game extends Scene {
 
     // Players
     localPlayerId: string;
-    players;
+    players: Map<string, Player>;
 
     playersLayer: Phaser.Physics.Arcade.Group;
 
@@ -43,6 +43,31 @@ export class Game extends Scene {
         this.load.image("star", "star.png");
         this.load.image("background", "theoria.jpg");
         this.load.image("active-voice", "sound.png");
+
+        this.load.spritesheet(
+            SpriteKeys.ADAM_ATTACK,
+            "characters/Adam_phone_16x16.png",
+            {
+                frameWidth: 16,
+                frameHeight: 32,
+            },
+        );
+        this.load.spritesheet(
+            SpriteKeys.ADAM,
+            "characters/Adam_idle_16x16.png",
+            {
+                frameWidth: 16,
+                frameHeight: 32,
+            },
+        );
+        this.load.spritesheet(
+            SpriteKeys.ADAM_WALK,
+            "characters/Adam_walk_16x16.png",
+            {
+                frameWidth: 16,
+                frameHeight: 32,
+            },
+        );
 
         this.load.spritesheet(
             SpriteKeys.ORC,
@@ -106,9 +131,13 @@ export class Game extends Scene {
     }
 
     create() {
-        // this.background = this.add.image(512, 384, "background");
+        /**
+         * fixedStep - removed jitter because of name container
+         * do not set to true
+         */
         this.physics.world.fixedStep = false;
         this.physics.world.setBounds(0, 0, 1024, 768);
+        // this.background = this.add.image(512, 384, "background");
         // Camera setup
         // this.cameras.main.setBounds(0, 0, 1024, 768);
 
@@ -177,7 +206,7 @@ export class Game extends Scene {
             return this.players.get(id);
         }
 
-        const p = new Player(this, name, id, x, y, SpriteKeys.SOLDIER, {
+        const p = new Player(this, name, id, x, y, SpriteKeys.ADAM, {
             isLocal: opts.isLocal,
         });
 
@@ -225,6 +254,56 @@ export class Game extends Scene {
     }
 
     private startAnimation() {
+        this.anims.create({
+            key: AttackAnimationKeys.ADAM,
+            frames: this.anims.generateFrameNumbers(SpriteKeys.ADAM_ATTACK, {
+                start: 0,
+                end: 8,
+            }),
+            frameRate: 6,
+            repeat: 0,
+        });
+
+        this.anims.create({
+            key: WalkAnimationKeys.ADAM,
+            frames: this.anims.generateFrameNumbers(SpriteKeys.ADAM_WALK, {
+                start: 0,
+                end: 5,
+            }),
+            frameRate: 6,
+            repeat: -1,
+        });
+
+        this.anims.create({
+            key: WalkAnimationKeys.ADAM_UP,
+            frames: this.anims.generateFrameNumbers(SpriteKeys.ADAM_WALK, {
+                start: 6,
+                end: 11,
+            }),
+            frameRate: 6,
+            repeat: -1,
+        });
+
+        this.anims.create({
+            key: WalkAnimationKeys.ADAM_DOWN,
+            frames: this.anims.generateFrameNumbers(SpriteKeys.ADAM_WALK, {
+                start: 18,
+                end: 23,
+            }),
+            frameRate: 6,
+            repeat: -1,
+        });
+
+        this.anims.create({
+            key: IdleAnimationKeys.ADAM,
+            frames: this.anims.generateFrameNumbers(SpriteKeys.ADAM, {
+                start: 18,
+                end: 23,
+            }),
+            frameRate: 6,
+            repeat: -1,
+        });
+
         this.anims.create({
             key: AttackAnimationKeys.SOLDIER,
             frames: this.anims.generateFrameNumbers(SpriteKeys.SOLDIER_ATTACK, {
@@ -277,7 +356,7 @@ export class Game extends Scene {
 
         this.anims.create({
             key: AttackAnimationKeys.ORC,
-            frames: this.anims.generateFrameNumbers(SpriteKeys.ORC_ATTACK, {
+            frames: this.anims.generateFrameNumbers(AttackAnimationKeys.ORC, {
                 start: 0,
                 end: 5,
             }),
