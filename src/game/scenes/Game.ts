@@ -203,7 +203,7 @@ export class Game extends Scene {
         opts: { isLocal: boolean },
     ): void {
         if (this.players.has(id)) {
-            return this.players.get(id);
+            return;
         }
 
         const p = new Player(this, name, id, x, y, SpriteKeys.ADAM, {
@@ -213,7 +213,6 @@ export class Game extends Scene {
         this.players.set(id, p);
         this.playersLayer.add(p);
 
-        // Example physics collision with world bounds or layers:
         const local = this.players.get(this.multiplayer.socket.id);
         if (!local) {
             console.error("Local player not found!");
@@ -231,11 +230,16 @@ export class Game extends Scene {
         }
     }
 
-    public update(time: number, delta: number) {
+    /**
+     * Update loop
+     * removed delta for not for unused variables
+     * public update(time: number, delta: number)
+     */
+    public update(time: number) {
         const tickRate = time - this.lastTick > this.Hz;
 
         for (const p of this.players.values()) {
-            p.update(time, delta);
+            p.update();
 
             if (p.isLocal && tickRate) {
                 this.multiplayer.emitPlayerMovement({
