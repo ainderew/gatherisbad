@@ -10,6 +10,7 @@ import ScreenShareUi from "./common/components/ScreenShare/ScreenShareUi";
 import { ScreenShareViewer } from "./communication/screenShare/screenShareViewer";
 import VideoChatUi from "./common/components/VideoChat/VideoChatUi";
 import { VideoChatViewer } from "./communication/videoChat/videoChatViewer";
+import { TextChatService } from "./communication/textChat/textChat";
 
 function App() {
     const [isInitialized, setIsInitialized] = useState(false);
@@ -24,6 +25,9 @@ function App() {
 
             const videoChat = VideoChatViewer.getInstance();
             videoChat.loadExistingProducers();
+
+            const textChat = TextChatService.getInstance();
+            textChat.setupMessageListener();
 
             setIsInitialized(true);
         };
