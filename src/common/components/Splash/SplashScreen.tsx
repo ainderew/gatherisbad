@@ -18,6 +18,13 @@ function SplashScreen() {
                 <Input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
+                    onKeyDown={(e) => {
+                        e.stopPropagation();
+                        if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleNameInput();
+                        }
+                    }}
                     type="text"
                     maxLength={13}
                     placeholder="Display Name"
