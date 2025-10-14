@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { ScreenShareViewer } from "@/communication/screenShare/screenShareViewer";
-import ScreeShareContainer from "./ScreeShareContainer";
+import VideoChatContainer from "./VideoChatContainer";
+import { VideoChatViewer } from "@/communication/videoChat/videoChatViewer";
 
 type VideoState = {
     producerId: string;
     isExpanded: boolean;
 };
 
-function ScreenShareUi() {
+function VideoChatUi() {
     const [videosTracked, setVideosTracked] = useState<VideoState[]>([]);
 
     useEffect(() => {
-        const service = ScreenShareViewer.getInstance();
+        const service = VideoChatViewer.getInstance();
 
         function updateScreenState() {
             const vidArray = Array.from(service.videoElements.keys());
@@ -41,7 +41,7 @@ function ScreenShareUi() {
     useEffect(() => {
         if (!videosTracked.length) return;
 
-        const service = ScreenShareViewer.getInstance();
+        const service = VideoChatViewer.getInstance();
 
         videosTracked.forEach((video) => {
             const container = document.getElementById(video.producerId);
@@ -73,17 +73,13 @@ function ScreenShareUi() {
     const hasExpandedVideo = !!expandedVideo;
 
     if (videosTracked.length === 0) {
-        return (
-            <div className="fixed top-5 left-5 p-4 bg-black/50 rounded text-white text-sm">
-                No screen shares active
-            </div>
-        );
+        return null;
     }
 
     return (
         <>
             {expandedVideo && (
-                <ScreeShareContainer
+                <VideoChatContainer
                     key={`expanded-${expandedVideo.producerId}`}
                     producerId={expandedVideo.producerId}
                     isExpanded={true}
@@ -98,13 +94,13 @@ function ScreenShareUi() {
                     ${
                         hasExpandedVideo
                             ? "left-10 top-1/2 -translate-y-1/2 flex-col"
-                            : "top-5 left-5 flex-col"
+                            : "top-5 left-1/2 -translate-x-1/2 flex"
                     }
                     ${hasExpandedVideo && collapsedVideos.length > 3 ? "overflow-x-auto max-w-[90vw]" : ""}
                 `}
             >
                 {collapsedVideos.map((video) => (
-                    <ScreeShareContainer
+                    <VideoChatContainer
                         key={`collapsed-${video.producerId}`}
                         producerId={video.producerId}
                         isExpanded={false}
@@ -124,4 +120,4 @@ function ScreenShareUi() {
     );
 }
 
-export default ScreenShareUi;
+export default VideoChatUi;

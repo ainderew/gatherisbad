@@ -8,7 +8,7 @@ function CharacterButton() {
     return (
         <div className="container text-white font-light bg-neutral-800 p-2 rounded-xl w-40 flex items-center gap-7">
             <div
-                className="character-container w-10 h-10 rounded-full border-solid border-green-500 border-2
+                className="character-container w-8 h-8 rounded-full border-solid border-green-500 border-2
                 bg-center bg-contain bg-no-repeat bg-[url('/assets/characters/Characters/Soldier/Soldier/soldier-portrait.jpeg')]"
             ></div>
 
@@ -23,7 +23,7 @@ function CharacterButton() {
             {/*     </AvatarFallback> */}
             {/* </Avatar> */}
             <div className="name flex flex-col">
-                <span className="name-text text-sm font-extralight">
+                <span className="name-text text-xs font-extralight">
                     {user.name}
                 </span>
                 <span className="name-text text-xs font-extralight">

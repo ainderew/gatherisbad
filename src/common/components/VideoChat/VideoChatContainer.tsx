@@ -1,8 +1,9 @@
 import React from "react";
 import { X, Maximize2, Minimize2 } from "lucide-react";
-import { ScreenShareViewer } from "@/communication/screenShare/screenShareViewer";
+import { VideoChatViewer } from "@/communication/videoChat/videoChatViewer";
+import useUserStore from "@/common/store/useStore";
 
-function VideoContainer({
+function VideoChatContainer({
     producerId,
     isExpanded,
     handleExpand,
@@ -18,6 +19,8 @@ function VideoContainer({
         console.log("🖱️ Clicked video:", producerId, "isExpanded:", isExpanded);
         handleExpand(producerId);
     }
+
+    const name = useUserStore((state) => state.user.name);
 
     return (
         <>
@@ -53,13 +56,13 @@ function VideoContainer({
                     className={`
                         absolute top-0 left-0 right-0 
                         bg-gradient-to-b from-black/80 via-black/50 to-transparent 
-                        p-3 flex justify-between items-center z-50
+                        p-3 flex justify-between items-center z-90
                         ${isExpanded ? "opacity-100" : "opacity-0 hover:opacity-100"}
                         transition-opacity duration-200
                     `}
                 >
                     <span className="text-white text-sm font-medium drop-shadow-lg">
-                        Screen Share
+                        Video Chat
                     </span>
 
                     <div className="flex gap-2">
@@ -88,19 +91,26 @@ function VideoContainer({
                 </div>
 
                 {!isExpanded && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-colors pointer-events-none">
+                    <div className="transition-all duration-300 absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40  opacity-0 hover:opacity-100">
                         <div className="bg-black/60 backdrop-blur-sm p-3 rounded-full">
                             <Maximize2 className="text-white" size={28} />
                         </div>
                     </div>
                 )}
 
-                <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm px-2 py-1 rounded text-white text-xs font-mono z-50">
-                    {ScreenShareViewer.getInstance().videoOwnerMap[producerId]}
+                <div className="absolute flex gap-2 items-center bottom-3 left-2 bg-black/60 backdrop-blur-sm px-2 py-1 rounded text-white text-xs font-mono z-50">
+                    <div className="green w-2 h-2 bg-green-500 rounded-full"></div>
+                    {VideoChatViewer.getInstance().videoChatOwnerMap[
+                        producerId
+                    ] === name
+                        ? "You"
+                        : VideoChatViewer.getInstance().videoChatOwnerMap[
+                              producerId
+                          ]}
                 </div>
             </div>
         </>
     );
 }
 
-export default VideoContainer;
+export default VideoChatContainer;

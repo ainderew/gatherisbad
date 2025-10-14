@@ -3,6 +3,7 @@ import { CONFIG } from "@/common/utils/config";
 import { Device } from "mediasoup-client";
 import {
     DtlsParameters,
+    MediaKind,
     RtpCapabilities,
     RtpParameters,
     Transport,
@@ -92,7 +93,12 @@ export class MediaTransportService {
         {
             kind,
             rtpParameters,
-        }: { kind: "audio" | "video"; rtpParameters: RtpParameters },
+            appData,
+        }: {
+            kind: MediaKind;
+            rtpParameters: RtpParameters;
+            appData: Record<string, unknown>;
+        },
         callback: (data: { id: string }) => void,
         errback: (err: Error) => void,
     ) => {
@@ -104,6 +110,7 @@ export class MediaTransportService {
                         kind,
                         rtpParameters,
                         transportId: this.sendTransport!.id,
+                        appData,
                     },
                     resolve,
                 ),

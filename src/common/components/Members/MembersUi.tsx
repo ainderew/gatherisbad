@@ -24,7 +24,7 @@ function MembersUi({ isMembersUiOpen, onClose }: MembersUiProps) {
 
     return (
         <div
-            className={`text-white h-[calc(100%-var(--ui-controls-height)+5px)] w-80 bg-neutral-900/95 backdrop-blur-sm absolute right-0 top-0 border-l border-neutral-700
+            className={`text-white h-[calc(100vh-var(--ui-controls-height)+5px)] w-100 bg-primary/95 backdrop-blur-sm absolute right-0 top-0 border-l border-neutral-700
               ${isMembersUiOpen ? "translate-x-0" : "translate-x-full"} transition-transform duration-300 ease-in-out flex flex-col shadow-2xl`}
         >
             <div className="flex items-center justify-between p-4 border-b border-neutral-700">
@@ -61,7 +61,7 @@ function MembersUi({ isMembersUiOpen, onClose }: MembersUiProps) {
                 <div className="flex flex-col gap-2">
                     {filteredPlayers.length > 0 ? (
                         filteredPlayers.map((player) => (
-                            <MemberItem key={player.id} name={player.name!} />
+                            <MemberItem key={player.id} player={player} />
                         ))
                     ) : (
                         <div className="text-center text-neutral-500 py-8">

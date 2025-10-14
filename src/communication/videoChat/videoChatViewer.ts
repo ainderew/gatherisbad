@@ -1,30 +1,30 @@
-import { Consumer } from "mediasoup-client/types";
-import { MediaTransportService } from "../mediaTransportService/mediaTransportServive";
 import useUserStore from "@/common/store/useStore";
-import { ConsumerData } from "./_types";
+import { MediaTransportService } from "../mediaTransportService/mediaTransportServive";
+import { ConsumerData } from "../screenShare/_types";
+import { Consumer } from "mediasoup-client/types";
 
-export class ScreenShareViewer {
-    private static instance: ScreenShareViewer | null = null;
-    private service: MediaTransportService;
+export class VideoChatViewer {
+    public static instance: VideoChatViewer | null = null;
+    private sfuService: MediaTransportService;
     private consumers: Map<string, Consumer> = new Map();
     public videoElements: Map<string, HTMLVideoElement> = new Map();
-    public videoOwnerMap: Record<string, string> = {};
+    public videoChatOwnerMap: Record<string, string> = {};
     public updateComponentStateCallback: (() => void) | null = null;
 
-    private constructor() {
-        this.service = MediaTransportService.getInstance();
+    constructor() {
+        this.sfuService = MediaTransportService.getInstance();
         this.setupListeners();
     }
 
-    public static getInstance(): ScreenShareViewer {
-        if (!ScreenShareViewer.instance) {
-            ScreenShareViewer.instance = new ScreenShareViewer();
+    public static getInstance() {
+        if (!this.instance) {
+            this.instance = new VideoChatViewer();
         }
-        return ScreenShareViewer.instance;
+        return this.instance;
     }
 
     private setupListeners(): void {
-        this.service.socket.on(
+        this.sfuService.socket.on(
             "newProducer",
             async ({
                 producerId,
@@ -35,14 +35,14 @@ export class ScreenShareViewer {
                 userName: string;
                 source: string;
             }) => {
-                if (source !== "screen") return;
+                if (source !== "camera") return;
 
-                this.videoOwnerMap[producerId] = userName;
+                this.videoChatOwnerMap[producerId] = userName;
                 await this.consumeProducer(producerId);
             },
         );
 
-        this.service.socket.on(
+        this.sfuService.socket.on(
             "endScreenShare",
             ({ producerId }: { producerId: string }) => {
                 this.removeScreenShareVideo(producerId);
@@ -50,38 +50,22 @@ export class ScreenShareViewer {
         );
     }
 
-    public async loadExistingProducers(): Promise<void> {
-        const producers = await new Promise<
-            { producerId: string; socketId: string; source: string }[]
-        >((resolve) => {
-            this.service.socket.emit("getProducers", {}, resolve);
-        });
-
-        console.log(`Found ${producers.length} existing producers`);
-        const relevantProducers = producers.filter(
-            (producer) => producer.source === "screen",
-        );
-
-        for (const { producerId } of relevantProducers) {
-            await this.consumeProducer(producerId);
-        }
-    }
-
     private async consumeProducer(producerId: string): Promise<void> {
         try {
             const consumerData = await new Promise<ConsumerData>((resolve) => {
-                this.service.socket.emit(
+                this.sfuService.socket.emit(
                     "consume",
                     {
                         producerId,
-                        rtpCapabilities: this.service.device!.rtpCapabilities,
-                        transportId: this.service.recvTransport!.id,
+                        rtpCapabilities:
+                            this.sfuService.device!.rtpCapabilities,
+                        transportId: this.sfuService.recvTransport!.id,
                     },
                     resolve,
                 );
             });
 
-            const consumer = await this.service.recvTransport!.consume({
+            const consumer = await this.sfuService.recvTransport!.consume({
                 id: consumerData.id,
                 producerId: consumerData.producerId,
                 kind: consumerData.kind,
@@ -89,7 +73,7 @@ export class ScreenShareViewer {
             });
 
             await new Promise((resolve) => {
-                this.service.socket.emit(
+                this.sfuService.socket.emit(
                     "resumeConsumer",
                     {
                         consumerId: consumer.id,
@@ -111,6 +95,24 @@ export class ScreenShareViewer {
             }
         } catch (error) {
             console.error("Error consuming producer:", error);
+        }
+    }
+
+    public async loadExistingProducers(): Promise<void> {
+        const producers = await new Promise<
+            { producerId: string; socketId: string; source: string }[]
+        >((resolve) => {
+            this.sfuService.socket.emit("getProducers", {}, resolve);
+        });
+
+        console.log(`Found ${producers.length} existing producers`);
+
+        const relevantProducers = producers.filter(
+            (p) => p.source === "camera", // or 'camera' for VideoChatViewer
+        );
+
+        for (const { producerId } of relevantProducers) {
+            await this.consumeProducer(producerId);
         }
     }
 
@@ -136,15 +138,6 @@ export class ScreenShareViewer {
     public removeScreenShareVideo(producerId: string) {
         if (!this.updateComponentStateCallback) return;
         this.videoElements.delete(producerId);
-        this.updateComponentStateCallback!();
-    }
-
-    public cleanup(): void {
-        if (!this.updateComponentStateCallback) return;
-        this.consumers.forEach((consumer) => consumer.close());
-        this.videoElements.forEach((el) => el.remove());
-        this.consumers.clear();
-        this.videoElements.clear();
         this.updateComponentStateCallback!();
     }
 }

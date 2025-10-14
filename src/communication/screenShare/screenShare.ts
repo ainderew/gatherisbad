@@ -44,6 +44,9 @@ export class ScreenShareService {
 
         this.screenProducer = await this.sfuService.sendTransport!.produce({
             track: videoTrack,
+            appData: {
+                source: "screen",
+            },
         });
 
         videoTrack.onended = () => {

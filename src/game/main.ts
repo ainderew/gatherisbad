@@ -5,6 +5,9 @@ const config: Phaser.Types.Core.GameConfig = {
     type: AUTO,
     parent: "game-container",
     backgroundColor: "#737373",
+    title: "Gather Is Bad",
+    disableContextMenu: true,
+
     scale: {
         mode: Phaser.Scale.ENVELOP,
         autoCenter: Phaser.Scale.CENTER_BOTH,

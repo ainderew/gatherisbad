@@ -26,11 +26,18 @@ function useUiControls() {
     }
 
     function toggleChatWindow() {
+        closeAll();
         setIsChatWindowOpen(!isChatWindowOpen);
     }
 
     function toggleMembersUi() {
+        closeAll();
         setIsMembersUiOpen(!isMembersUiOpen);
+    }
+
+    function closeAll() {
+        setIsMembersUiOpen(false);
+        setIsChatWindowOpen(false);
     }
 
     return {

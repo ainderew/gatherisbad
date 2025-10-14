@@ -28,13 +28,17 @@ const sizeMap: Record<ButtonSizeEnum, string> = {
 
 const textColorMap: Record<ColorEnum, string> = {
     darkRed: "text-red-900",
+    darkGreen: "text-red-900",
     red: "text-red-600",
+    green: "text-green-600",
     normal: "text-white",
 };
 
 const buttonColorMap: Record<ColorEnum, string> = {
     darkRed: "bg-red-950",
+    darkGreen: "bg-green-950",
     red: "bg-red-600",
+    green: "bg-green-600",
     normal: "bg-neutral-700",
 };
 

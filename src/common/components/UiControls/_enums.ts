@@ -1,7 +1,9 @@
 export enum ColorEnum {
     normal = "normal",
     red = "red",
+    green = "green",
     darkRed = "darkRed",
+    darkGreen = "darkGreen",
 }
 
 export enum ButtonSizeEnum {
