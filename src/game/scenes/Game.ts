@@ -37,6 +37,10 @@ export class Game extends Scene {
 
         this.load.image("tiles1", "tiles1.png");
         this.load.image("tiles2", "tiles2.png");
+        this.load.image(
+            "Exterior",
+            "tile-sets/Modern_Exteriors_Complete_Tileset_32x32.png",
+        );
         this.load.tilemapTiledJSON("map", "map1.json");
 
         this.load.image("logo", "logo.png");
@@ -149,7 +153,7 @@ export class Game extends Scene {
         });
         const tileset = map.addTilesetImage("tiles1", "tiles1")!;
         const tileset2 = map.addTilesetImage("tiles_2", "tiles2")!;
-        console.log(tileset);
+        const exterior_tileset = map.addTilesetImage("Exterior", "Exterior")!;
 
         if (!tileset) {
             throw new Error("Tileset 'tiles_1' not found!");
@@ -158,24 +162,57 @@ export class Game extends Scene {
         /**
          * Don't touch the order it will mess with rendering
          */
-        const floorLayer = map.createLayer("Floor", [tileset, tileset2], 0, 0)!;
-        const rugLayer = map.createLayer("Rugs", [tileset, tileset2], 0, 0)!;
-        const wallLayer = map.createLayer("Wall", [tileset, tileset2], 0, 0)!;
+        const floorLayer = map.createLayer(
+            "Floor",
+            [tileset, tileset2, exterior_tileset],
+            0,
+            0,
+        )!;
+        const rugLayer = map.createLayer(
+            "Rugs",
+            [tileset, tileset2, exterior_tileset],
+            0,
+            0,
+        )!;
+        const wallLayer = map.createLayer(
+            "Wall",
+            [tileset, tileset2, exterior_tileset],
+            0,
+            0,
+        )!;
         const wDecorationLayer = map.createLayer(
             "WallDecoration",
-            [tileset, tileset2],
+            [tileset, tileset2, exterior_tileset],
             0,
             0,
         )!;
         const furnitureLayer = map.createLayer(
             "Furniture",
-            [tileset, tileset2],
+            [tileset, tileset2, exterior_tileset],
             0,
             0,
         )!;
         const fDecorationLayer = map.createLayer(
             "FurnitureDecoration",
-            [tileset, tileset2],
+            [tileset, tileset2, exterior_tileset],
+            0,
+            0,
+        )!;
+        const buildings = map.createLayer(
+            "Buildings",
+            [tileset, tileset2, exterior_tileset],
+            0,
+            0,
+        )!;
+        const trees2 = map.createLayer(
+            "Trees2",
+            [tileset, tileset2, exterior_tileset],
+            0,
+            0,
+        )!;
+        const trees = map.createLayer(
+            "Trees",
+            [tileset, tileset2, exterior_tileset],
             0,
             0,
         )!;
