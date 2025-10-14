@@ -230,6 +230,9 @@ export class Game extends Scene {
             fDecorationLayer,
             wDecorationLayer,
             rugLayer,
+            buildings,
+            trees2,
+            trees,
         );
     }
 
@@ -414,6 +417,9 @@ export class Game extends Scene {
         fDecorationLayer: Phaser.Tilemaps.TilemapLayer,
         wDecorationLayer: Phaser.Tilemaps.TilemapLayer,
         rugLayer: Phaser.Tilemaps.TilemapLayer,
+        buildings: Phaser.Tilemaps.TilemapLayer,
+        trees2: Phaser.Tilemaps.TilemapLayer,
+        trees: Phaser.Tilemaps.TilemapLayer,
     ): void {
         // TODO: organize initialization code
         this.playersLayer = this.physics.add.group();
@@ -427,6 +433,9 @@ export class Game extends Scene {
             fDecorationLayer,
             wDecorationLayer,
             rugLayer,
+            buildings,
+            trees2,
+            trees,
         );
 
         // Turned off collisions between players for now
