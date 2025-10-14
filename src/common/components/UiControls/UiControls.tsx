@@ -6,6 +6,7 @@ import {
     MessageCircle,
     PhoneMissed,
     VideoIcon,
+    VideoOff,
     ScreenShare as ScreenShareIcon,
 } from "lucide-react";
 import useUiControls from "./hooks/useUiControls";
@@ -20,6 +21,7 @@ import { VideoChatService } from "@/communication/videoChat/videoChat";
 function UiControls() {
     const {
         micControls,
+        videoCamControls,
         toggleChatWindow,
         isChatWindowOpen,
         toggleMembersUi,
@@ -27,6 +29,7 @@ function UiControls() {
     } = useUiControls();
 
     const { isMuted, toggleMic } = micControls();
+    const { isVideoOff, toggleVideoCam } = videoCamControls();
 
     const handleScreenShare = async () => {
         try {
@@ -52,7 +55,7 @@ function UiControls() {
         try {
             const screenShare = VideoChatService.getInstance();
             screenShare.startVideoChat();
-            console.log("Screen sharing started successfully");
+            toggleVideoCam();
         } catch (error) {
             console.error("Screen share error:", error);
 
@@ -80,9 +83,11 @@ function UiControls() {
                 />
                 <UiControlsButton
                     onClick={handleShareVideoCam}
-                    icon={VideoIcon}
+                    icon={isVideoOff ? VideoOff : VideoIcon}
                     label={"Share Video"}
                     size={ButtonSizeEnum.regular}
+                    color={isVideoOff ? ColorEnum.darkRed : ColorEnum.darkGreen}
+                    textColor={isVideoOff ? ColorEnum.red : ColorEnum.green}
                 />
                 <UiControlsButton
                     onClick={toggleMic}
@@ -100,15 +105,18 @@ function UiControls() {
             </div>
 
             <div className="chat-buttons-container flex gap-4">
-                <UiOnlineButton onClick={toggleMembersUi} />
                 <UiControlsButton
                     onClick={toggleChatWindow}
                     icon={MessageCircle}
                     label={"Chat"}
                 />
+                <UiOnlineButton onClick={toggleMembersUi} />
             </div>
 
-            <ChatWindow isChatWindowOpen={isChatWindowOpen} />
+            <ChatWindow
+                isChatWindowOpen={isChatWindowOpen}
+                onClose={toggleChatWindow}
+            />
             <MembersUi
                 isMembersUiOpen={isMembersUiOpen}
                 onClose={toggleMembersUi}

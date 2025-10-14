@@ -1,12 +1,15 @@
 import { AudioChat } from "@/communication/audioChat/audioChat";
+import { VideoChatService } from "@/communication/videoChat/videoChat";
 import { useState } from "react";
 
 function useUiControls() {
     const audioService = AudioChat.getInstance();
+    const videoCamService = VideoChatService.getInstance();
 
     const [isChatWindowOpen, setIsChatWindowOpen] = useState(false);
     const [isMembersUiOpen, setIsMembersUiOpen] = useState(false);
     const [isMuted, setIsMuted] = useState(audioService.isMuted);
+    const [isVideoOff, setIsVideoOff] = useState(true);
 
     function micControls() {
         function toggleMic() {
@@ -22,6 +25,21 @@ function useUiControls() {
         return {
             isMuted,
             toggleMic,
+        };
+    }
+
+    function videoCamControls() {
+        function toggleVideoCam() {
+            setIsVideoOff((prev) => !prev);
+        }
+
+        if (isVideoOff) {
+            videoCamService.stopVideoChat();
+        }
+
+        return {
+            isVideoOff,
+            toggleVideoCam,
         };
     }
 
@@ -42,6 +60,7 @@ function useUiControls() {
 
     return {
         micControls,
+        videoCamControls,
         toggleMembersUi,
         isMembersUiOpen,
         toggleChatWindow,

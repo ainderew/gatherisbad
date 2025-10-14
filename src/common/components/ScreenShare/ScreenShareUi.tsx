@@ -94,7 +94,7 @@ function ScreenShareUi() {
 
             <div
                 className={`
-                    fixed flex gap-4 transition-all duration-300 ease-in-out z-90
+                     absolute flex gap-4 transition-all duration-300 ease-in-out z-90
                     ${
                         hasExpandedVideo
                             ? "left-10 top-1/2 -translate-y-1/2 flex-col"

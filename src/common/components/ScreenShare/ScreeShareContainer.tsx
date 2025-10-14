@@ -6,7 +6,7 @@ function ScreeShareContainer({
     producerId,
     isExpanded,
     handleExpand,
-    hasMoreThanOneSharing,
+    // hasMoreThanOneSharing,
 }: {
     producerId: string;
     isExpanded: boolean;
@@ -32,15 +32,15 @@ function ScreeShareContainer({
             <div
                 onClick={!isExpanded ? handleClick : undefined}
                 className={`
-                    rounded-lg overflow-hidden
+                    rounded-lg overflow-hidden 
                     transition-all duration-300 ease-in-out
                     bg-black
+
                     ${
                         isExpanded
-                            ? "fixed w-[80vw] h-[85vh] top-1/2  -translate-y-1/2 z-50 border-4 border-blue-500 shadow-2xl"
-                            : "relative w-48 h-32 cursor-pointer border-2 border-white/70 hover:border-blue-400 hover:scale-105"
+                            ? "fixed w-[80vw] h-[85vh] right-20 top-1/2  -translate-y-1/2 z-50 border-4 border-blue-500 shadow-2xl"
+                            : "relative w-48 h-32 cursor-pointer left-0 border-2 border-white/70 hover:border-blue-400 hover:scale-105"
                     }
-                    ${hasMoreThanOneSharing ? "right-20" : "left-1/2 -translate-x-1/2"}
                 `}
             >
                 {/*Attach Video*/}

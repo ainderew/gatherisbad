@@ -13,6 +13,7 @@ export class Game extends Scene {
     camera: Phaser.Cameras.Scene2D.Camera;
     background: Phaser.GameObjects.Image;
     gameText: Phaser.GameObjects.Text;
+    inputElement: HTMLInputElement;
 
     // Players
     localPlayerId: string;
@@ -137,10 +138,10 @@ export class Game extends Scene {
          */
         this.physics.world.fixedStep = false;
         this.physics.world.setBounds(0, 0, 1024, 768);
-        // this.background = this.add.image(512, 384, "background");
-        // Camera setup
-        // this.cameras.main.setBounds(0, 0, 1024, 768);
+        this.setupChatBlur();
 
+        // Camera setup
+        // this.cameras.main.setBounds(0, 0, 1924, 1080);
         const map = this.make.tilemap({
             key: "map",
             tileWidth: 32,
@@ -394,5 +395,23 @@ export class Game extends Scene {
         // Turned off collisions between players for now
         // It makes it harder to move around
         // this.physics.add.collider(this.playersLayer, this.playersLayer);
+    }
+
+    private setupChatBlur() {
+        this.input.on("pointerdown", () => {
+            const active = document.activeElement as HTMLElement | null;
+
+            if (!active) return;
+
+            const tag = active.tagName?.toLowerCase();
+            const isEditable =
+                tag === "input" ||
+                tag === "textarea" ||
+                active.isContentEditable;
+
+            if (isEditable) {
+                active.blur();
+            }
+        });
     }
 }

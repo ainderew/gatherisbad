@@ -50,6 +50,15 @@ export class VideoChatService {
                 source: "camera",
             },
         });
+
+        videoTrack.onended = () => {
+            console.log("Screen sharing has been stopped by the user.");
+            this.sfuService.socket.emit("producerClosed", {
+                producerId: this.producer!.id,
+                kind: "video",
+            });
+            this.stopVideoChat();
+        };
     }
 
     public stopVideoChat() {

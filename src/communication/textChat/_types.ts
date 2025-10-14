@@ -3,4 +3,7 @@ export type Message = {
     senderSocketId: string;
     name: string;
     createdAt: Date;
+    type?: "text" | "gif" | "image";
+    gifUrl?: string;
+    imageUrl?: string;
 };

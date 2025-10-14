@@ -37,4 +37,24 @@ export class TextChatService {
             this.uiUpdater?.(data);
         });
     }
+
+    sendGif(gifUrl: string) {
+        this.sfuService.socket.emit(TextEvents.SEND_MESSAGE, {
+            createdAt: new Date(),
+            name: useUserStore.getState().user.name,
+            content: "",
+            type: "gif",
+            gifUrl: gifUrl,
+        });
+    }
+
+    sendImage(imageUrl: string) {
+        this.sfuService.socket.emit(TextEvents.SEND_MESSAGE, {
+            createdAt: new Date(),
+            name: useUserStore.getState().user.name,
+            content: "",
+            type: "image",
+            imageUrl: imageUrl,
+        });
+    }
 }

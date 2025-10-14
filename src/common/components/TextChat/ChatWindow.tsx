@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { TextChatService } from "@/communication/textChat/textChat";
 import type { Message } from "@/communication/textChat/_types";
 import MessageItem from "./MessageItem";
-import { X, Send } from "lucide-react";
+import GiphyPicker from "./GiphyPicker";
+import { X, Send, Smile, Image as ImageIcon } from "lucide-react";
 
 interface ChatWindowProps {
     isChatWindowOpen: boolean;
@@ -14,7 +15,9 @@ interface ChatWindowProps {
 function ChatWindow({ isChatWindowOpen, onClose }: ChatWindowProps) {
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState<Message[]>([]);
+    const [showGiphyPicker, setShowGiphyPicker] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const textChatService = useMemo(() => {
         return TextChatService.getInstance();
@@ -43,6 +46,39 @@ function ChatWindow({ isChatWindowOpen, onClose }: ChatWindowProps) {
 
         textChatService.sendMessage(message);
         setMessage("");
+    }
+
+    function sendGif(gifUrl: string) {
+        textChatService.sendGif(gifUrl);
+    }
+
+    function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith("image/")) {
+            alert("Please select an image file");
+            return;
+        }
+
+        /**
+         * Max file size 5MB
+         */
+        if (file.size > 5 * 1024 * 1024) {
+            alert("Image size must be less than 5MB");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const imageUrl = event.target?.result as string;
+            textChatService.sendImage(imageUrl);
+        };
+        reader.readAsDataURL(file);
+
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
     }
 
     const shouldShowAvatar = (index: number) => {
@@ -108,9 +144,15 @@ function ChatWindow({ isChatWindowOpen, onClose }: ChatWindowProps) {
                 </div>
             </div>
 
-            {/* Input */}
-            <div className="p-4 border-t border-neutral-700">
-                <div className="flex gap-2">
+            <div className="p-4 border-t border-neutral-700 relative">
+                {showGiphyPicker && (
+                    <GiphyPicker
+                        onSelectGif={sendGif}
+                        onClose={() => setShowGiphyPicker(false)}
+                    />
+                )}
+
+                <div className="flex gap-2 items-end">
                     <Textarea
                         id="chat-input"
                         value={message}
@@ -124,8 +166,37 @@ function ChatWindow({ isChatWindowOpen, onClose }: ChatWindowProps) {
                         }}
                         placeholder="Message the team"
                         rows={1}
-                        className="flex-1 bg-neutral-800 border-neutral-700 focus:border-blue-500 text-white placeholder:text-neutral-500 resize-none"
+                        className="relative pb-10 flex-1 bg-neutral-800 border-neutral-700 focus:border-blue-500 text-white placeholder:text-neutral-500 resize-none"
                     />
+                    <div className="absolute bottom-5 left-6 flex gap-1">
+                        <Button
+                            onClick={() => setShowGiphyPicker(!showGiphyPicker)}
+                            variant="ghost"
+                            size="icon-sm"
+                            className="text-neutral-400 hover:text-white hover:bg-neutral-800"
+                            title="Send GIF"
+                        >
+                            <Smile className="h-5 w-5" />
+                        </Button>
+                        <Button
+                            onClick={() => fileInputRef.current?.click()}
+                            variant="ghost"
+                            size="icon-sm"
+                            className="text-neutral-400 hover:text-white hover:bg-neutral-800"
+                            title="Upload Image"
+                        >
+                            <ImageIcon className="h-5 w-5" />
+                        </Button>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                        />
+                    </div>
+
+                    {/* Send Button */}
                     <Button
                         onClick={sendMessage}
                         disabled={!message.trim()}

@@ -30,6 +30,8 @@
         "lint": "eslint 'src/**/*.{ts,tsx}' --fix"
     },
     "dependencies": {
+        "@giphy/js-fetch-api": "^5.7.0",
+        "@giphy/react-components": "^10.1.0",
         "@radix-ui/react-avatar": "^1.1.10",
         "@radix-ui/react-slot": "^1.2.3",
         "@radix-ui/react-tooltip": "^1.2.8",
