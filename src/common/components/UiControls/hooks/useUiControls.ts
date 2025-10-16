@@ -8,6 +8,7 @@ function useUiControls() {
 
     const [isChatWindowOpen, setIsChatWindowOpen] = useState(false);
     const [isMembersUiOpen, setIsMembersUiOpen] = useState(false);
+    const [isCalendarUiOpen, setIsCalendarUiOpen] = useState(false);
     const [isMuted, setIsMuted] = useState(audioService.isMuted);
     const [isVideoOff, setIsVideoOff] = useState(true);
 
@@ -44,18 +45,41 @@ function useUiControls() {
     }
 
     function toggleChatWindow() {
-        closeAll();
-        setIsChatWindowOpen(!isChatWindowOpen);
+        closeAllExcluding("chat");
+        setIsChatWindowOpen((prev) => !prev);
     }
 
     function toggleMembersUi() {
-        closeAll();
-        setIsMembersUiOpen(!isMembersUiOpen);
+        closeAllExcluding("members");
+        setIsMembersUiOpen((prev) => !prev);
     }
 
-    function closeAll() {
-        setIsMembersUiOpen(false);
-        setIsChatWindowOpen(false);
+    function toggleCalendarMenu() {
+        closeAllExcluding("calendar");
+        setIsCalendarUiOpen((prev) => !prev);
+    }
+
+    //TODO: refactor to use a single state variable make more scalable
+    function closeAllExcluding(exlcuded: string) {
+        switch (exlcuded) {
+            case "chat":
+                setIsChatWindowOpen((prev) => prev);
+                setIsMembersUiOpen(false);
+                setIsCalendarUiOpen(false);
+
+                break;
+            case "members":
+                setIsMembersUiOpen((prev) => prev);
+                setIsChatWindowOpen(false);
+                setIsCalendarUiOpen(false);
+                break;
+            case "calendar":
+                setIsCalendarUiOpen((prev) => prev);
+                setIsMembersUiOpen(false);
+                setIsChatWindowOpen(false);
+
+                break;
+        }
     }
 
     return {
@@ -65,6 +89,9 @@ function useUiControls() {
         isMembersUiOpen,
         toggleChatWindow,
         isChatWindowOpen,
+
+        toggleCalendarMenu,
+        isCalendarUiOpen,
     };
 }
 

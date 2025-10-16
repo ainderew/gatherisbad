@@ -1,3 +1,5 @@
+"use-client";
+import Phaser from "phaser";
 import React, { useEffect, useRef, useState } from "react";
 import { IRefPhaserGame, PhaserGame } from "./PhaserGame";
 import AudioButton from "./common/components/AudioButton";

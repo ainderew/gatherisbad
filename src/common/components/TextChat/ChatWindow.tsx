@@ -5,14 +5,16 @@ import { TextChatService } from "@/communication/textChat/textChat";
 import type { Message } from "@/communication/textChat/_types";
 import MessageItem from "./MessageItem";
 import GiphyPicker from "./GiphyPicker";
-import { X, Send, Smile, Image as ImageIcon } from "lucide-react";
+import { Send, Smile, Image as ImageIcon } from "lucide-react";
+import SidebarMenu from "../SidebarMenu/SidebarMenu";
+import SidebarHeader from "../SidebarMenu/SidebarHeader";
 
 interface ChatWindowProps {
-    isChatWindowOpen: boolean;
+    isOpen: boolean;
     onClose: () => void;
 }
 
-function ChatWindow({ isChatWindowOpen, onClose }: ChatWindowProps) {
+function ChatWindow({ isOpen, onClose }: ChatWindowProps) {
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState<Message[]>([]);
     const [showGiphyPicker, setShowGiphyPicker] = useState(false);
@@ -30,12 +32,12 @@ function ChatWindow({ isChatWindowOpen, onClose }: ChatWindowProps) {
     }, [textChatService]);
 
     useEffect(() => {
-        if (!isChatWindowOpen) return;
+        if (!isOpen) return;
         const chatInput = document.getElementById("chat-input");
         if (chatInput) {
             chatInput.focus();
         }
-    }, [isChatWindowOpen]);
+    }, [isOpen]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -96,33 +98,14 @@ function ChatWindow({ isChatWindowOpen, onClose }: ChatWindowProps) {
         return timeDiff > 5 * 60 * 1000;
     };
 
-    if (!isChatWindowOpen) {
-        return null;
-    }
-
     return (
-        <div
-            className={`text-white h-[calc(100vh-var(--ui-controls-height)+5px)] w-100 bg-primary backdrop-blur-sm absolute right-0 top-0 border-l border-neutral-700
-              ${isChatWindowOpen ? "translate-x-0" : "translate-x-full"} transition-transform duration-300 ease-in-out flex flex-col shadow-2xl`}
-        >
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-neutral-700">
-                <div className="flex flex-col">
-                    <span className="font-bold text-lg">Team Chat</span>
-                    <span className="text-xs text-neutral-400">
-                        {messages.length} message
-                        {messages.length !== 1 ? "s" : ""}
-                    </span>
-                </div>
-                <Button
-                    onClick={onClose}
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-neutral-400 hover:text-white hover:bg-neutral-800"
-                >
-                    <X className="h-5 w-5" />
-                </Button>
-            </div>
+        <SidebarMenu isOpen={isOpen}>
+            <SidebarHeader title="Team Chat" onClose={onClose}>
+                <span className="text-xs text-neutral-400">
+                    {messages.length} message
+                    {messages.length !== 1 ? "s" : ""}
+                </span>
+            </SidebarHeader>
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto px-4 pb-4">
@@ -207,7 +190,7 @@ function ChatWindow({ isChatWindowOpen, onClose }: ChatWindowProps) {
                     </Button>
                 </div>
             </div>
-        </div>
+        </SidebarMenu>
     );
 }
 

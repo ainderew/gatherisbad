@@ -198,24 +198,27 @@ export class Game extends Scene {
             0,
             0,
         )!;
-        const buildings = map.createLayer(
+        const buildingsLayer = map.createLayer(
             "Buildings",
             [tileset, tileset2, exterior_tileset],
             0,
             0,
         )!;
-        const trees2 = map.createLayer(
+        const trees2Layer = map.createLayer(
             "Trees2",
             [tileset, tileset2, exterior_tileset],
             0,
             0,
         )!;
-        const trees = map.createLayer(
+        const treesLayer = map.createLayer(
             "Trees",
             [tileset, tileset2, exterior_tileset],
             0,
             0,
         )!;
+
+        // treesLayer.setDepth(20);
+        // wallLayer.setDepth(10);
 
         this.multiplayer.watchNewPlayers(
             this.createPlayer.bind(this),
@@ -230,9 +233,9 @@ export class Game extends Scene {
             fDecorationLayer,
             wDecorationLayer,
             rugLayer,
-            buildings,
-            trees2,
-            trees,
+            buildingsLayer,
+            trees2Layer,
+            treesLayer,
         );
     }
 
@@ -417,14 +420,19 @@ export class Game extends Scene {
         fDecorationLayer: Phaser.Tilemaps.TilemapLayer,
         wDecorationLayer: Phaser.Tilemaps.TilemapLayer,
         rugLayer: Phaser.Tilemaps.TilemapLayer,
-        buildings: Phaser.Tilemaps.TilemapLayer,
-        trees2: Phaser.Tilemaps.TilemapLayer,
-        trees: Phaser.Tilemaps.TilemapLayer,
+        buildingsLayer: Phaser.Tilemaps.TilemapLayer,
+        trees2Layer: Phaser.Tilemaps.TilemapLayer,
+        treesLayer: Phaser.Tilemaps.TilemapLayer,
     ): void {
         // TODO: organize initialization code
         this.playersLayer = this.physics.add.group();
         this.physics.add.collider(this.playersLayer, wallLayer);
-        wallLayer.setCollisionBetween(0, 9500, true);
+        this.physics.add.collider(this.playersLayer, wallLayer);
+        this.physics.add.collider(this.playersLayer, treesLayer);
+        this.physics.add.collider(this.playersLayer, trees2Layer);
+        wallLayer.setCollisionBetween(0, 10000, true);
+        treesLayer.setCollisionBetween(0, 9500, true);
+        trees2Layer.setCollisionBetween(0, 9500, true);
 
         this.playersLayer.runChildUpdate = true;
         console.log(
@@ -433,9 +441,9 @@ export class Game extends Scene {
             fDecorationLayer,
             wDecorationLayer,
             rugLayer,
-            buildings,
-            trees2,
-            trees,
+            buildingsLayer,
+            trees2Layer,
+            treesLayer,
         );
 
         // Turned off collisions between players for now

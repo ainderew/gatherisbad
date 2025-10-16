@@ -8,6 +8,7 @@ import {
     VideoIcon,
     VideoOff,
     ScreenShare as ScreenShareIcon,
+    CalendarFold,
 } from "lucide-react";
 import useUiControls from "./hooks/useUiControls";
 import ChatWindow from "../TextChat/ChatWindow";
@@ -17,6 +18,7 @@ import { ButtonSizeEnum, ColorEnum } from "./_enums";
 import UiOnlineButton from "./UiOnlineButton";
 import MembersUi from "../Members/MembersUi";
 import { VideoChatService } from "@/communication/videoChat/videoChat";
+import CalendarMenu from "../Google/CalendarMenu";
 
 function UiControls() {
     const {
@@ -26,6 +28,8 @@ function UiControls() {
         isChatWindowOpen,
         toggleMembersUi,
         isMembersUiOpen,
+        toggleCalendarMenu,
+        isCalendarUiOpen,
     } = useUiControls();
 
     const { isMuted, toggleMic } = micControls();
@@ -106,6 +110,12 @@ function UiControls() {
 
             <div className="chat-buttons-container flex gap-4">
                 <UiControlsButton
+                    onClick={toggleCalendarMenu}
+                    icon={CalendarFold}
+                    label={"Calendar"}
+                />
+
+                <UiControlsButton
                     onClick={toggleChatWindow}
                     icon={MessageCircle}
                     label={"Chat"}
@@ -113,10 +123,11 @@ function UiControls() {
                 <UiOnlineButton onClick={toggleMembersUi} />
             </div>
 
-            <ChatWindow
-                isChatWindowOpen={isChatWindowOpen}
-                onClose={toggleChatWindow}
+            <CalendarMenu
+                isOpen={isCalendarUiOpen}
+                onClose={toggleCalendarMenu}
             />
+            <ChatWindow isOpen={isChatWindowOpen} onClose={toggleChatWindow} />
             <MembersUi
                 isMembersUiOpen={isMembersUiOpen}
                 onClose={toggleMembersUi}
