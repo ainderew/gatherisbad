@@ -33,8 +33,13 @@ export class ReactionService {
         );
     }
 
-    public routeReactionToPlayer(emojiData: ReactionData) {
+    public routeReactionToPlayer(reactionData: ReactionData) {
+        const { playerId, reaction } = reactionData;
+        if (reaction === "🥷") {
+            const audio = new Audio("/assets/sounds/ninja-sound-effect.mp3");
+            audio.play();
+        }
         const players = usePlayersStore.getState().playerMap;
-        players[emojiData.playerId]?.showReactionTag(emojiData);
+        players[playerId]?.showReactionTag(reactionData);
     }
 }

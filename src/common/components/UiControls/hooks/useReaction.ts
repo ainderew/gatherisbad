@@ -14,19 +14,11 @@ function useReaction() {
         reactionService.sendReaction(emojiData);
     }
 
-    function handleNinja() {
-        const audio = new Audio("/assets/sounds/ninja-sound-effect.mp3");
-        audio.play();
-
-        sendEmojiEvent("🥷");
-    }
-
     function handleReact(emoji: string) {
         sendEmojiEvent(emoji);
     }
 
     return {
-        handleNinja,
         handleReact,
     };
 }

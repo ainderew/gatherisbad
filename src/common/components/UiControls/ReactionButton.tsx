@@ -15,17 +15,16 @@ function ReactionButton() {
         setIsExpanded((prev) => !prev);
     }
 
-    const { handleNinja, handleReact } = useReaction();
+    const { handleReact } = useReaction();
 
     return (
         <div
             className={`relative flex cursor-pointer dark bg-neutral-700 h-9 text-white gap-4 rounded-md transition-all duration-200
-                        ${isExpanded ? "overflow-auto w-75" : "overflow-hidden w-9"}`}
+                        ${isExpanded ? "overflow-auto w-105" : "overflow-hidden w-9"}`}
         >
             <div
                 onClick={expnadEmojiContainer}
-                className={`w-9 h-9 flex items-center justify-center  hover:bg-neutral-100 hover:text-neutral-900 z-20
-                ${isExpanded ? "absolute" : ""} `}
+                className={`w-9 h-9 flex items-center absolute justify-center  hover:bg-neutral-100 hover:text-neutral-900 z-20`}
             >
                 <SmilePlus size={18} />
             </div>
@@ -37,6 +36,42 @@ function ReactionButton() {
                 ${isExpanded ? "translate-x-9" : "-translate-x-190 absolute -z-10"}
                 `}
             >
+                <Button
+                    onClick={() => handleReact("👍")}
+                    className="text-lg bg-neutral-700 hover:bg-neutral-100 hover:text-neutral-900  h-9"
+                    variant="default"
+                >
+                    👍
+                </Button>
+                <Button
+                    onClick={() => handleReact("😂")}
+                    className="text-lg bg-neutral-700 hover:bg-neutral-100 hover:text-neutral-900  h-9"
+                    variant="default"
+                >
+                    😂
+                </Button>
+                <Button
+                    onClick={() => handleReact("❤️")}
+                    className="text-lg bg-neutral-700 hover:bg-neutral-100 hover:text-neutral-900  h-9"
+                    variant="default"
+                >
+                    ❤️
+                </Button>
+                <Button
+                    onClick={() => handleReact("🔥")}
+                    className="text-lg bg-neutral-700 hover:bg-neutral-100 hover:text-neutral-900  h-9"
+                    variant="default"
+                >
+                    🔥
+                </Button>
+                <Button
+                    onClick={() => handleReact("🥷")}
+                    className="text-xl bg-neutral-700 hover:bg-neutral-100 hover:text-neutral-900  h-9"
+                    variant="default"
+                >
+                    🥷
+                </Button>
+
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Button
@@ -50,28 +85,6 @@ function ReactionButton() {
                         <p>Raise Hand</p>
                     </TooltipContent>
                 </Tooltip>
-
-                <Button
-                    onClick={() => handleReact("👍")}
-                    className="text-lg bg-neutral-700 hover:bg-neutral-100 hover:text-neutral-900  h-9"
-                    variant="default"
-                >
-                    👍
-                </Button>
-                <Button
-                    onClick={() => handleReact("❤️")}
-                    className="text-lg bg-neutral-700 hover:bg-neutral-100 hover:text-neutral-900  h-9"
-                    variant="default"
-                >
-                    ❤️
-                </Button>
-                <Button
-                    onClick={handleNinja}
-                    className="text-xl bg-neutral-700 hover:bg-neutral-100 hover:text-neutral-900  h-9"
-                    variant="default"
-                >
-                    🥷
-                </Button>
             </div>
         </div>
     );

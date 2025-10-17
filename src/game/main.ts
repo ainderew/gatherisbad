@@ -17,6 +17,7 @@ const config: Phaser.Types.Core.GameConfig = {
     },
     scene: [GameScene],
     pixelArt: true,
+    antialias: true,
     roundPixels: true,
 
     physics: {

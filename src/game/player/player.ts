@@ -67,10 +67,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.setPushable(false);
         this.sprite = sprite;
 
-        //Collision box scaling it's too big by default idk why
-        const w = Math.round(this.width * 0.2);
-        const h = Math.round(this.height * 0.2);
+        const w = Math.round(this.width * 1);
+        const h = Math.round(this.height * 0.5);
         this.body!.setSize(w, h, true);
+        this.body?.setOffset(0, this.height - h);
 
         console.log(`SETTING ID FOR ${name}`, id);
         this.id = id;
@@ -109,6 +109,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         const emojiText = this.scene.add
             .text(0, -70, data.reaction, {
                 font: "25px Arial",
+                color: "#000000",
             })
             .setOrigin(0.5, 0.5);
 
@@ -146,8 +147,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.uiContainer.add([bubble, emojiText]);
 
-        this.scene.time.delayedCall(5000, () => {
-            this.scene.tweens.add({
+        this.scene.time.delayedCall(3000, () => {
+            this.scene?.tweens?.add({
                 targets: [bubble, emojiText],
                 alpha: 0,
                 duration: 500,
@@ -208,44 +209,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             tailY + tailHeight,
         );
     }
-
-    public initializeEmptyNameTag() {
-        this.nameText = this.scene.add
-            .text(0, 0, this.name, {
-                font: "16px Arial",
-                color: "#ffffff",
-                stroke: "#000000",
-                strokeThickness: 3,
-            })
-            .setOrigin(0.5, 0.5);
-
-        const nameWidth = this.nameText.width;
-        const nameHeight = this.nameText.height;
-
-        const padding = 8;
-
-        const bgWidth = nameWidth + padding * 2;
-        const bgHeight = nameHeight + padding * 2;
-
-        const background = this.scene.add.graphics();
-        background.fillStyle(0x000000, 0.5); // Black with 50% opacity
-        background.fillRoundedRect(
-            -bgWidth / 2,
-            -bgHeight / 2,
-            bgWidth,
-            bgHeight,
-            8, // Corner radius
-        );
-
-        this.uiContainer = this.scene.add.container(this.x, this.y - 50, [
-            background,
-            this.nameText,
-        ]);
-
-        this.uiContainer.setDepth(10);
-    }
-
-    // - - -  end
 
     public initializeNameTag() {
         this.nameText = this.scene.add
