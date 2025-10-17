@@ -1,8 +1,8 @@
-import { PlayerDto } from "@/game/multiplayer/_types";
+import { Player } from "@/game/player/player";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import React from "react";
 
-function MemberItem({ player }: { player: PlayerDto }) {
+function MemberItem({ player }: { player: Player }) {
     return (
         <div
             onClick={() => {}}

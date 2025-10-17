@@ -1,15 +1,15 @@
 import { create } from "zustand";
 import { PlayersStore } from "./_types";
-import { PlayerDto } from "@/game/multiplayer/_types";
+import { Player } from "@/game/player/player";
 
 const usePlayersStore = create<PlayersStore>((set) => ({
-    playerMap: {} as Record<string, PlayerDto>,
+    playerMap: {} as Record<string, Player>,
     localPlayerId: null,
 
-    setPlayerMap: (playerMap: Record<string, PlayerDto>) => set({ playerMap }),
+    setPlayerMap: (playerMap: Record<string, Player>) => set({ playerMap }),
     setLocalPlayerId: (playerId: string) => set({ localPlayerId: playerId }),
 
-    updatePlayerMap: (id: string, updates: Partial<PlayerDto>) =>
+    updatePlayerMap: (id: string, updates: Partial<Player>) =>
         set((state) => {
             const existing = state.playerMap[id];
             if (!existing) {
@@ -26,7 +26,7 @@ const usePlayersStore = create<PlayersStore>((set) => ({
             };
         }),
 
-    addPlayerToMap: (id: string, player: PlayerDto) =>
+    addPlayerToMap: (id: string, player: Player) =>
         set((state) => ({
             playerMap: {
                 ...state.playerMap,

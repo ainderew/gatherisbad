@@ -16,7 +16,6 @@ function VideoChatContainer({
 }) {
     function handleClick(e: React.MouseEvent) {
         e.stopPropagation();
-        console.log("🖱️ Clicked video:", producerId, "isExpanded:", isExpanded);
         handleExpand(producerId);
     }
 

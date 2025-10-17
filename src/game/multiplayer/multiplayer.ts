@@ -62,10 +62,6 @@ export class Multiplayer {
         );
 
         this.socket.on("newPlayer", (data: PlayerDto) => {
-            usePlayersStore
-                .getState()
-                .addPlayerToMap(data.id, data as PlayerDto);
-
             createPlayer(data.id, data.name, data.x, data.y, data.opts);
         });
 

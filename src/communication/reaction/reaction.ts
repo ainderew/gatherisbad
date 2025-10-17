@@ -39,6 +39,22 @@ export class ReactionService {
             const audio = new Audio("/assets/sounds/ninja-sound-effect.mp3");
             audio.play();
         }
+
+        if (reaction === "🤚") {
+            const audio = new Audio("/assets/sounds/pop.mp3");
+            audio.play();
+
+            usePlayersStore
+                .getState()
+                .updatePlayerMap(playerId, { isRaisingHand: true });
+        }
+
+        if (reaction === "stop-raise-hand") {
+            usePlayersStore
+                .getState()
+                .updatePlayerMap(playerId, { isRaisingHand: false });
+        }
+
         const players = usePlayersStore.getState().playerMap;
         players[playerId]?.showReactionTag(reactionData);
     }

@@ -14,6 +14,7 @@ import VideoChatUi from "./common/components/VideoChat/VideoChatUi";
 import { VideoChatViewer } from "./communication/videoChat/videoChatViewer";
 import { TextChatService } from "./communication/textChat/textChat";
 import { ReactionService } from "./communication/reaction/reaction";
+import ReactionToast from "./common/components/RaiseHandToast/RaiseHandToast";
 
 function App() {
     const [isInitialized, setIsInitialized] = useState(false);
@@ -78,6 +79,7 @@ function App() {
             <UiControls />
             <ScreenShareUi />
             <VideoChatUi />
+            <ReactionToast />
         </div>
     );
 }

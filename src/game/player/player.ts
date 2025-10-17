@@ -27,6 +27,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     isAttacking: boolean;
     isRaisingHand: boolean = false;
+    raisHandGraphics: {
+        bubble: Phaser.GameObjects.Graphics;
+        emojiText: Phaser.GameObjects.Text;
+    } | null = null;
 
     playerProducerIds: string[];
 
@@ -105,6 +109,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             return;
         }
 
+        if (data.reaction === "stop-raise-hand") {
+            this.destroyReactionTagInstantly(
+                this.raisHandGraphics!.bubble,
+                this.raisHandGraphics!.emojiText,
+            );
+            return;
+        }
+
         // Create emoji text first to measure its size
         const emojiText = this.scene.add
             .text(0, -70, data.reaction, {
@@ -147,6 +159,18 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
         this.uiContainer.add([bubble, emojiText]);
 
+        if (data.reaction === "🤚") {
+            this.isRaisingHand = true;
+            this.raisHandGraphics = { bubble, emojiText };
+        } else {
+            this.destroyReactionTag(bubble, emojiText);
+        }
+    }
+
+    private destroyReactionTag(
+        bubble: Phaser.GameObjects.Graphics,
+        emojiText: Phaser.GameObjects.Text,
+    ) {
         this.scene.time.delayedCall(3000, () => {
             this.scene?.tweens?.add({
                 targets: [bubble, emojiText],
@@ -157,6 +181,21 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
                     emojiText.destroy();
                 },
             });
+        });
+    }
+
+    destroyReactionTagInstantly(
+        bubble: Phaser.GameObjects.Graphics,
+        emojiText: Phaser.GameObjects.Text,
+    ) {
+        this.scene?.tweens?.add({
+            targets: [bubble, emojiText],
+            alpha: 0,
+            duration: 500,
+            onComplete: () => {
+                bubble.destroy();
+                emojiText.destroy();
+            },
         });
     }
 

@@ -73,11 +73,7 @@ function ScreenShareUi() {
     const hasExpandedVideo = !!expandedVideo;
 
     if (videosTracked.length === 0) {
-        return (
-            <div className="fixed top-5 left-5 p-4 bg-black/50 rounded text-white text-sm">
-                No screen shares active
-            </div>
-        );
+        return null;
     }
 
     return (

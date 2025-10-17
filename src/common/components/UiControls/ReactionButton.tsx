@@ -15,7 +15,7 @@ function ReactionButton() {
         setIsExpanded((prev) => !prev);
     }
 
-    const { handleReact } = useReaction();
+    const { handleReact, toggleRaiseHand, isRaisingHand } = useReaction();
 
     return (
         <div
@@ -75,6 +75,7 @@ function ReactionButton() {
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Button
+                            onClick={() => toggleRaiseHand()}
                             className="text-lg bg-neutral-700 hover:bg-neutral-100 hover:text-neutral-900  h-9"
                             variant="default"
                         >
@@ -82,12 +83,11 @@ function ReactionButton() {
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                        <p>Raise Hand</p>
+                        <p>{isRaisingHand ? "Put down hand" : "Raise hand"}</p>
                     </TooltipContent>
                 </Tooltip>
             </div>
         </div>
     );
 }
-
 export default ReactionButton;
