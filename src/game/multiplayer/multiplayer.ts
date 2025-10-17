@@ -49,10 +49,7 @@ export class Multiplayer {
                         player.name = "You";
                     }
 
-                    usePlayersStore
-                        .getState()
-                        .addPlayerToMap(id, player as PlayerDto);
-
+                    console.log("CURRENT PLAYERS:", player);
                     createPlayer(
                         player.id,
                         player.name,

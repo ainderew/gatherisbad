@@ -7,6 +7,7 @@ import {
     SpriteKeys,
     WalkAnimationKeys,
 } from "../commmon/enums";
+import usePlayersStore from "@/common/store/playerStore";
 
 export class Game extends Scene {
     //Game setup
@@ -250,20 +251,32 @@ export class Game extends Scene {
             return;
         }
 
-        const p = new Player(this, name, id, x, y, SpriteKeys.ADAM, {
-            isLocal: opts.isLocal,
-        });
+        console.log("Creating player:", id, name);
+        const playerInstance = new Player(
+            this,
+            name,
+            id,
+            x,
+            y,
+            SpriteKeys.ADAM,
+            {
+                isLocal: opts.isLocal,
+            },
+        );
 
-        this.players.set(id, p);
-        this.playersLayer.add(p);
+        usePlayersStore.getState().addPlayerToMap(id, playerInstance as Player);
+        this.players.set(id, playerInstance);
+        this.playersLayer.add(playerInstance);
 
-        const local = this.players.get(this.multiplayer.socket.id);
-        if (!local) {
-            console.error("Local player not found!");
-            return;
+        if (opts.isLocal) {
+            this.setupLocalPlayer(playerInstance);
         }
-        this.localPlayerId = local.id;
-        this.cameras.main.startFollow(local, true, 0.1, 0.1);
+    }
+
+    private setupLocalPlayer(localPlayer: Player): void {
+        this.localPlayerId = localPlayer.id;
+        this.cameras.main.startFollow(localPlayer, true, 0.1, 0.1);
+        usePlayersStore.getState().setLocalPlayerId(localPlayer.id);
     }
 
     public destroyPlayer(id: string): void {
@@ -427,10 +440,12 @@ export class Game extends Scene {
         // TODO: organize initialization code
         this.playersLayer = this.physics.add.group();
         this.physics.add.collider(this.playersLayer, wallLayer);
-        this.physics.add.collider(this.playersLayer, wallLayer);
+        this.physics.add.collider(this.playersLayer, furnitureLayer);
         this.physics.add.collider(this.playersLayer, treesLayer);
         this.physics.add.collider(this.playersLayer, trees2Layer);
+
         wallLayer.setCollisionBetween(0, 10000, true);
+        furnitureLayer.setCollisionBetween(0, 9500, true);
         treesLayer.setCollisionBetween(0, 9500, true);
         trees2Layer.setCollisionBetween(0, 9500, true);
 

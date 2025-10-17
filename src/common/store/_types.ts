@@ -1,4 +1,4 @@
-import { PlayerDto } from "@/game/multiplayer/_types";
+import { Player } from "@/game/player/player";
 
 export type User = {
     name: string;
@@ -12,9 +12,11 @@ export interface UserStore {
 }
 
 export interface PlayersStore {
-    playerMap: Record<string, PlayerDto>;
-    setPlayerMap: (playerMap: Record<string, PlayerDto>) => void;
-    updatePlayerMap: (id: string, updates: Partial<PlayerDto>) => void;
-    addPlayerToMap: (id: string, update: PlayerDto) => void;
+    playerMap: Record<string, Player>;
+    localPlayerId: string | null;
+    setPlayerMap: (playerMap: Record<string, Player>) => void;
+    setLocalPlayerId: (playerId: string) => void;
+    updatePlayerMap: (id: string, updates: Partial<Player>) => void;
+    addPlayerToMap: (id: string, update: Player) => void;
     removePlayerFromMap: (id: string) => void;
 }

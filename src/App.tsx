@@ -13,23 +13,28 @@ import { ScreenShareViewer } from "./communication/screenShare/screenShareViewer
 import VideoChatUi from "./common/components/VideoChat/VideoChatUi";
 import { VideoChatViewer } from "./communication/videoChat/videoChatViewer";
 import { TextChatService } from "./communication/textChat/textChat";
+import { ReactionService } from "./communication/reaction/reaction";
 
 function App() {
     const [isInitialized, setIsInitialized] = useState(false);
     useEffect(() => {
         const init = async () => {
             const transport = MediaTransportService.getInstance();
+            const screenShare = ScreenShareViewer.getInstance();
+            const videoChat = VideoChatViewer.getInstance();
+            const textChat = TextChatService.getInstance();
+            const reactionService = ReactionService.getInstance();
+
+            screenShare.loadExistingProducers();
+            videoChat.loadExistingProducers();
+            textChat.setupMessageListener();
+            reactionService.setupReactionListener();
+            reactionService.uiUpdater = (emojiData) => {
+                reactionService.routeReactionToPlayer(emojiData);
+            };
+
             transport.connect();
             await transport.initializeSfu();
-
-            const screenShare = ScreenShareViewer.getInstance();
-            screenShare.loadExistingProducers();
-
-            const videoChat = VideoChatViewer.getInstance();
-            videoChat.loadExistingProducers();
-
-            const textChat = TextChatService.getInstance();
-            textChat.setupMessageListener();
 
             setIsInitialized(true);
         };

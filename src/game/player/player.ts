@@ -5,6 +5,7 @@ import {
     SpriteKeys,
     WalkAnimationKeys,
 } from "../commmon/enums";
+import { ReactionData } from "@/communication/reaction/_types";
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
     id: string;
@@ -15,10 +16,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     y: number;
     vx: number;
     vy: number;
-    isAttacking: boolean;
-
-    playerProducerIds: string[];
-
     targetPos = {
         x: this.x,
         y: this.y,
@@ -27,6 +24,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         t: Date.now(),
     }; // latest server target
     prevPos = { x: this.x, y: this.y, t: Date.now() };
+
+    isAttacking: boolean;
+    isRaisingHand: boolean = false;
+
+    playerProducerIds: string[];
 
     nameText: Phaser.GameObjects.Text;
     voiceIndicator: Phaser.GameObjects.Image;
@@ -59,7 +61,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         scene.physics.add.existing(this);
 
         this.setCollideWorldBounds(false);
-        this.setMaxVelocity(400, 400);
+        this.setMaxVelocity(500, 500);
         this.setBounce(0.1);
         this.setScale(2);
         this.setPushable(false);
@@ -70,10 +72,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         const h = Math.round(this.height * 0.2);
         this.body!.setSize(w, h, true);
 
+        console.log(`SETTING ID FOR ${name}`, id);
         this.id = id;
         this.scene = scene;
 
-        this.moveSpeed = 400;
+        this.moveSpeed = 600;
         this.isLocal = ops.isLocal;
 
         if (this.isLocal) {
@@ -90,6 +93,159 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.idleAnimation();
         this.setupUiEventListener();
     }
+
+    public showReactionTag(data: ReactionData) {
+        if (!data.reaction) {
+            console.warn("No emoji provided");
+            return;
+        }
+
+        if (data.playerId && data.playerId !== this.id) {
+            console.log("Emoji not for this player");
+            return;
+        }
+
+        // Create emoji text first to measure its size
+        const emojiText = this.scene.add
+            .text(0, -70, data.reaction, {
+                font: "25px Arial",
+            })
+            .setOrigin(0.5, 0.5);
+
+        // Get text dimensions for bubble sizing
+        const textBounds = emojiText.getBounds();
+        const padding = 12;
+        const bubbleWidth = textBounds.width + padding * 2;
+        const bubbleHeight = textBounds.height + padding * 2;
+        const tailHeight = 10;
+
+        // Create speech bubble background
+        const bubble = this.scene.add.graphics();
+
+        this.createBubble(
+            bubble,
+            bubbleWidth,
+            bubbleHeight,
+            tailHeight,
+            emojiText.x,
+            emojiText.y,
+        );
+
+        this.uiContainer.add([bubble, emojiText]);
+
+        bubble.setScale(0);
+        emojiText.setScale(0);
+
+        this.scene.tweens.add({
+            targets: [bubble, emojiText],
+            scaleX: 1,
+            scaleY: 1,
+            duration: 200,
+            ease: "Back.easeOut",
+        });
+
+        this.uiContainer.add([bubble, emojiText]);
+
+        this.scene.time.delayedCall(5000, () => {
+            this.scene.tweens.add({
+                targets: [bubble, emojiText],
+                alpha: 0,
+                duration: 500,
+                onComplete: () => {
+                    bubble.destroy();
+                    emojiText.destroy();
+                },
+            });
+        });
+    }
+
+    private createBubble(
+        graphics: Phaser.GameObjects.Graphics,
+        width: number,
+        height: number,
+        tailHeight: number,
+        x: number,
+        y: number,
+    ) {
+        graphics.clear();
+
+        // Bubble colors
+        graphics.fillStyle(0xffffff, 0.95); // White with slight transparency
+        // graphics.lineStyle(2, 0x333333, 1); // Dark border
+
+        const cornerRadius = 8;
+        const bubbleX = x - width / 2;
+        const bubbleY = y - height / 2;
+
+        // Draw rounded rectangle
+        graphics.fillRoundedRect(bubbleX, bubbleY, width, height, cornerRadius);
+        graphics.strokeRoundedRect(
+            bubbleX,
+            bubbleY,
+            width,
+            height,
+            cornerRadius,
+        );
+
+        // Draw speech bubble tail pointing down
+        const tailX = x;
+        const tailY = bubbleY + height;
+
+        graphics.fillTriangle(
+            tailX - 8,
+            tailY, // Left point
+            tailX + 8,
+            tailY, // Right point
+            tailX,
+            tailY + tailHeight, // Bottom point
+        );
+        graphics.strokeTriangle(
+            tailX - 8,
+            tailY,
+            tailX + 8,
+            tailY,
+            tailX,
+            tailY + tailHeight,
+        );
+    }
+
+    public initializeEmptyNameTag() {
+        this.nameText = this.scene.add
+            .text(0, 0, this.name, {
+                font: "16px Arial",
+                color: "#ffffff",
+                stroke: "#000000",
+                strokeThickness: 3,
+            })
+            .setOrigin(0.5, 0.5);
+
+        const nameWidth = this.nameText.width;
+        const nameHeight = this.nameText.height;
+
+        const padding = 8;
+
+        const bgWidth = nameWidth + padding * 2;
+        const bgHeight = nameHeight + padding * 2;
+
+        const background = this.scene.add.graphics();
+        background.fillStyle(0x000000, 0.5); // Black with 50% opacity
+        background.fillRoundedRect(
+            -bgWidth / 2,
+            -bgHeight / 2,
+            bgWidth,
+            bgHeight,
+            8, // Corner radius
+        );
+
+        this.uiContainer = this.scene.add.container(this.x, this.y - 50, [
+            background,
+            this.nameText,
+        ]);
+
+        this.uiContainer.setDepth(10);
+    }
+
+    // - - -  end
 
     public initializeNameTag() {
         this.nameText = this.scene.add
@@ -144,7 +300,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     private attackAnimation() {
-        console.log("Trying to attackAnimation");
         this.anims.play(AttackAnimationKeys[this.sprite], true);
     }
 

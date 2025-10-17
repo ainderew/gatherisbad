@@ -19,6 +19,7 @@ import UiOnlineButton from "./UiOnlineButton";
 import MembersUi from "../Members/MembersUi";
 import { VideoChatService } from "@/communication/videoChat/videoChat";
 import CalendarMenu from "../Google/CalendarMenu";
+import ReactionButton from "./ReactionButton";
 
 function UiControls() {
     const {
@@ -77,7 +78,7 @@ function UiControls() {
 
     return (
         <div className="h-[var(--ui-controls-height)] w-full flex justify-between items-center bg-primary/80 px-5">
-            <div className="controller-container flex gap-4">
+            <div className="controller-container flex gap-4 items-center">
                 <CharacterButton />
                 <UiControlsButton
                     icon={PhoneMissed}
@@ -106,6 +107,7 @@ function UiControls() {
                     label={"Share Screen"}
                     size={ButtonSizeEnum.regular}
                 />
+                <ReactionButton />
             </div>
 
             <div className="chat-buttons-container flex gap-4">

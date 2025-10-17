@@ -4,8 +4,10 @@ import { PlayerDto } from "@/game/multiplayer/_types";
 
 const usePlayersStore = create<PlayersStore>((set) => ({
     playerMap: {} as Record<string, PlayerDto>,
+    localPlayerId: null,
 
     setPlayerMap: (playerMap: Record<string, PlayerDto>) => set({ playerMap }),
+    setLocalPlayerId: (playerId: string) => set({ localPlayerId: playerId }),
 
     updatePlayerMap: (id: string, updates: Partial<PlayerDto>) =>
         set((state) => {

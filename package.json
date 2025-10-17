@@ -33,6 +33,7 @@
         "@giphy/js-fetch-api": "^5.7.0",
         "@giphy/react-components": "^10.1.0",
         "@radix-ui/react-avatar": "^1.1.10",
+        "@radix-ui/react-separator": "^1.1.7",
         "@radix-ui/react-slot": "^1.2.3",
         "@radix-ui/react-tooltip": "^1.2.8",
         "@react-oauth/google": "^0.12.2",

@@ -32,7 +32,6 @@ export class TextChatService {
 
     setupMessageListener() {
         this.sfuService.socket.on(TextEvents.NEW_MESSAGE, (data: Message) => {
-            console.log("New message received:", data);
             this.messages.push(data);
             this.uiUpdater?.(data);
         });
