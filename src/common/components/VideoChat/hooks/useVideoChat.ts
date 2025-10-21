@@ -1,14 +1,12 @@
 import { VideoChatViewer } from "@/communication/videoChat/videoChatViewer";
 import { useEffect, useState } from "react";
 import { VideoState } from "../_types";
-import { VideoChatService } from "@/communication/videoChat/videoChat";
 
 function useVideoChat() {
     const [videosTracked, setVideosTracked] = useState<VideoState[]>([]);
 
     useEffect(() => {
         const service = VideoChatViewer.getInstance();
-        const videoChatService = VideoChatService.getInstance();
 
         function updateScreenState() {
             const vidArray = Array.from(service.videoElements.keys());
