@@ -15,32 +15,42 @@ import { VideoChatViewer } from "./communication/videoChat/videoChatViewer";
 import { TextChatService } from "./communication/textChat/textChat";
 import { ReactionService } from "./communication/reaction/reaction";
 import ReactionToast from "./common/components/RaiseHandToast/RaiseHandToast";
+import { VideoChatService } from "./communication/videoChat/videoChat";
+import { ScreenShareService } from "./communication/screenShare/screenShare";
 
 function App() {
     const [isInitialized, setIsInitialized] = useState(false);
     useEffect(() => {
-        const init = async () => {
-            const transport = MediaTransportService.getInstance();
-            const screenShare = ScreenShareViewer.getInstance();
-            const videoChat = VideoChatViewer.getInstance();
-            const textChat = TextChatService.getInstance();
-            const reactionService = ReactionService.getInstance();
+        const transport = MediaTransportService.getInstance();
+        const screenShare = ScreenShareService.getInstance();
+        const screenShareViewer = ScreenShareViewer.getInstance();
+        const videoChat = VideoChatService.getInstance();
+        const videoChatViewer = VideoChatViewer.getInstance();
+        const textChat = TextChatService.getInstance();
+        const reactionService = ReactionService.getInstance();
 
-            screenShare.loadExistingProducers();
-            videoChat.loadExistingProducers();
+        const init = async () => {
+            transport.connect();
+            await transport.initializeSfu();
+
+            screenShareViewer.loadExistingProducers();
+            videoChatViewer.loadExistingProducers();
             textChat.setupMessageListener();
             reactionService.setupReactionListener();
             reactionService.uiUpdater = (emojiData) => {
                 reactionService.routeReactionToPlayer(emojiData);
             };
 
-            transport.connect();
-            await transport.initializeSfu();
-
             setIsInitialized(true);
         };
 
+        const cleanup = async () => {
+            videoChat.cleanUpListener();
+            screenShare.cleanupListener();
+        };
+
         init();
+        cleanup();
     }, []);
 
     const phaserRef = useRef<IRefPhaserGame | null>(null);

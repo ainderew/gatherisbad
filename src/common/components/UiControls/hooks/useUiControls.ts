@@ -32,10 +32,9 @@ function useUiControls() {
     function videoCamControls() {
         function toggleVideoCam() {
             setIsVideoOff((prev) => !prev);
-        }
-
-        if (isVideoOff) {
-            videoCamService.stopVideoChat();
+            if (!isVideoOff) {
+                videoCamService.stopVideoChat();
+            }
         }
 
         return {

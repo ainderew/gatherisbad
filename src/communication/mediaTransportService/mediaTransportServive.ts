@@ -115,6 +115,8 @@ export class MediaTransportService {
                     resolve,
                 ),
             );
+            console.log("PRODUCING AUDIO ID");
+            console.log(id);
             callback({ id });
         } catch (err) {
             errback(err as Error);

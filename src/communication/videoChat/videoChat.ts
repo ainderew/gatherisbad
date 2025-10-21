@@ -50,18 +50,14 @@ export class VideoChatService {
                 source: "camera",
             },
         });
-
-        videoTrack.onended = () => {
-            console.log("Screen sharing has been stopped by the user.");
-            this.sfuService.socket.emit("producerClosed", {
-                producerId: this.producer!.id,
-                kind: "video",
-            });
-            this.stopVideoChat();
-        };
     }
 
     public stopVideoChat() {
+        this.sfuService.socket.emit("producerClosed", {
+            producerId: this.producer!.id,
+            kind: "video",
+        });
+
         if (this.producer) {
             this.producer.close();
             this.producer = null;
@@ -70,6 +66,14 @@ export class VideoChatService {
             this.currentStream.getTracks().forEach((track) => track.stop());
             this.currentStream = null;
         }
+    }
+
+    /**
+     * When users exit without stopping video cam manually
+     * This emits the producerClosed automatically to handle cleanup
+     */
+    public cleanUpListener() {
+        window.addEventListener("pagehide", this.stopVideoChat.bind(this));
     }
 
     public getCurrentStream() {

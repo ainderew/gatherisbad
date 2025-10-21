@@ -51,10 +51,6 @@ export class ScreenShareService {
 
         videoTrack.onended = () => {
             console.log("Screen sharing has been stopped by the user.");
-            this.sfuService.socket.emit("producerClosed", {
-                producerId: this.screenProducer!.id,
-                kind: "video", // or "screen"
-            });
             this.stopScreenShare();
         };
 
@@ -62,6 +58,11 @@ export class ScreenShareService {
     }
 
     public stopScreenShare(): void {
+        this.sfuService.socket.emit("producerClosed", {
+            producerId: this.screenProducer!.id,
+            kind: "video", // or "screen"
+        });
+
         if (this.currentStream) {
             this.currentStream.getTracks().forEach((track) => track.stop());
             this.currentStream = null;
@@ -75,5 +76,13 @@ export class ScreenShareService {
         //     this.systemAudioProducer.close();
         //     this.systemAudioProducer = null;
         // }
+    }
+
+    /**
+     * When users exit without stopping screen share manually
+     * This emits the producerClosed automatically to handle cleanup
+     */
+    public cleanupListener() {
+        window.addEventListener("pagehide", this.stopScreenShare.bind(this));
     }
 }

@@ -1,5 +1,5 @@
 import { Player } from "@/game/player/player";
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
 import React from "react";
 
 function MemberItem({ player }: { player: Player }) {
@@ -11,10 +11,15 @@ function MemberItem({ player }: { player: Player }) {
             <div className="avatar-online-container relative w-8 h-8">
                 <div className="avatar-container overflow-hidden w-8 h-8 bg-center rounded-full aspect-square">
                     <Avatar className="">
-                        <AvatarImage
-                            className=""
-                            src="/assets/characters/Characters/Soldier/Soldier/soldier-portrait.jpeg"
-                            alt="@shadcn"
+                        <div
+                            className="w-full h-full bg-no-repeat"
+                            style={{
+                                backgroundImage:
+                                    "url('/assets/characters/Characters/Adam/Adam_idle_16x16.png')",
+                                backgroundSize: "auto 200%",
+                                backgroundPosition: "-575px -16px",
+                                imageRendering: "pixelated",
+                            }}
                         />
                         <AvatarFallback className="bg-black">
                             {player.name![0]}

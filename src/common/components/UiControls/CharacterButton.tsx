@@ -9,19 +9,15 @@ function CharacterButton() {
         <div className="container text-white font-light bg-neutral-800 p-2 rounded-xl w-40 flex items-center gap-7">
             <div
                 className="character-container w-8 h-8 rounded-full border-solid border-green-500 border-2
-                bg-center bg-contain bg-no-repeat bg-[url('/assets/characters/Characters/Soldier/Soldier/soldier-portrait.jpeg')]"
-            ></div>
-
-            {/* <Avatar className="w-10 h-10 bg-center rounded-full aspect-square"> */}
-            {/*     <AvatarImage */}
-            {/*         className="" */}
-            {/*         src="/assets/characters/Characters/Soldier/Soldier/soldier-portrait.jpeg" */}
-            {/*         alt="@shadcn" */}
-            {/*     /> */}
-            {/*     <AvatarFallback className="bg-black"> */}
-            {/*         {user.name[0]} */}
-            {/*     </AvatarFallback> */}
-            {/* </Avatar> */}
+    bg-no-repeat overflow-hidden"
+                style={{
+                    backgroundImage:
+                        "url('/assets/characters/Characters/Adam/Adam_idle_16x16.png')",
+                    backgroundSize: "auto 200%",
+                    backgroundPosition: "-588px -16px",
+                    imageRendering: "pixelated",
+                }}
+            />
             <div className="name flex flex-col">
                 <span className="name-text text-xs font-extralight">
                     {user.name}
