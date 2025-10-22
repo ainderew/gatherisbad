@@ -13,7 +13,7 @@ export interface UserStore {
 
 export interface PlayersStore {
     playerMap: Record<string, Player>;
-    localPlayerId: string | null;
+    localPlayerId: string;
     setPlayerMap: (playerMap: Record<string, Player>) => void;
     setLocalPlayerId: (playerId: string) => void;
     updatePlayerMap: (id: string, updates: Partial<Player>) => void;

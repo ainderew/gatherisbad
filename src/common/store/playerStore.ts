@@ -4,7 +4,7 @@ import { Player } from "@/game/player/player";
 
 const usePlayersStore = create<PlayersStore>((set) => ({
     playerMap: {} as Record<string, Player>,
-    localPlayerId: null,
+    localPlayerId: "",
 
     setPlayerMap: (playerMap: Record<string, Player>) => set({ playerMap }),
     setLocalPlayerId: (playerId: string) => set({ localPlayerId: playerId }),

@@ -8,6 +8,7 @@ import {
     WalkAnimationKeys,
 } from "../commmon/enums";
 import usePlayersStore from "@/common/store/playerStore";
+import { AvailabilityStatus } from "../player/_enums";
 
 export class Game extends Scene {
     //Game setup
@@ -35,13 +36,20 @@ export class Game extends Scene {
 
     preload() {
         this.load.setPath("assets");
-
-        this.load.image("tiles1", "tiles1.png");
-        this.load.image("tiles2", "tiles2.png");
         this.load.image(
             "Exterior",
             "tile-sets/Modern_Exteriors_Complete_Tileset_32x32.png",
         );
+
+        this.load.image("Interior_2", "tile-sets/Room_Builder_32x32.png");
+
+        for (let i = 0; i < 9; i++) {
+            this.load.image(
+                `Interior_Tile_${i}`,
+                `tile-sets/Interiors_32x32_part_${i}.png`,
+            );
+        }
+
         this.load.tilemapTiledJSON("map", "map1.json");
 
         this.load.image("logo", "logo.png");
@@ -137,86 +145,65 @@ export class Game extends Scene {
     }
 
     create() {
-        /**
-         * fixedStep - removed jitter because of name container
-         * do not set to true
-         */
-        this.physics.world.fixedStep = false;
-        this.physics.world.setBounds(0, 0, 1024, 768);
-        this.setupChatBlur();
-
-        // Camera setup
-        // this.cameras.main.setBounds(0, 0, 1924, 1080);
         const map = this.make.tilemap({
             key: "map",
             tileWidth: 32,
             tileHeight: 32,
         });
-        const tileset = map.addTilesetImage("tiles1", "tiles1")!;
-        const tileset2 = map.addTilesetImage("tiles_2", "tiles2")!;
-        const exterior_tileset = map.addTilesetImage("Exterior", "Exterior")!;
 
-        if (!tileset) {
+        /**
+         * fixedStep - removed jitter because of name container
+         * do not set to true
+         */
+        this.physics.world.fixedStep = false;
+        this.physics.world.setBounds(0, 0, 4064, 3200);
+
+        // Camera setup
+        // this.cameras.main.setBounds(0, 0, 4064, 3200);
+
+        const interiorTilesets = [];
+
+        const exterior_tileset = map.addTilesetImage("Exterior", "Exterior")!;
+        const Interior_2 = map.addTilesetImage("Interior_2", "Interior_2")!;
+        for (let i = 0; i < 9; i++) {
+            interiorTilesets.push(
+                map.addTilesetImage(
+                    `Interior_Tile_${i}`,
+                    `Interior_Tile_${i}`,
+                )!,
+            );
+        }
+
+        // Include all tilesets in your layers
+        const allTilesets = [exterior_tileset, Interior_2, ...interiorTilesets];
+
+        if (!Interior_2) {
+            alert("INTERIOR DOES NOT EXIST");
             throw new Error("Tileset 'tiles_1' not found!");
         }
 
         /**
          * Don't touch the order it will mess with rendering
          */
-        const floorLayer = map.createLayer(
-            "Floor",
-            [tileset, tileset2, exterior_tileset],
-            0,
-            0,
-        )!;
-        const rugLayer = map.createLayer(
-            "Rugs",
-            [tileset, tileset2, exterior_tileset],
-            0,
-            0,
-        )!;
-        const wallLayer = map.createLayer(
-            "Wall",
-            [tileset, tileset2, exterior_tileset],
-            0,
-            0,
-        )!;
+        const floorLayer = map.createLayer("Floor", allTilesets, 0, 0)!;
+        const rugLayer = map.createLayer("Rugs", allTilesets, 0, 0)!;
+        const wallLayer = map.createLayer("Wall", allTilesets, 0, 0)!;
         const wDecorationLayer = map.createLayer(
             "WallDecoration",
-            [tileset, tileset2, exterior_tileset],
+            allTilesets,
             0,
             0,
         )!;
-        const furnitureLayer = map.createLayer(
-            "Furniture",
-            [tileset, tileset2, exterior_tileset],
-            0,
-            0,
-        )!;
+        const furnitureLayer = map.createLayer("Furniture", allTilesets, 0, 0)!;
         const fDecorationLayer = map.createLayer(
             "FurnitureDecoration",
-            [tileset, tileset2, exterior_tileset],
+            allTilesets,
             0,
             0,
         )!;
-        const buildingsLayer = map.createLayer(
-            "Buildings",
-            [tileset, tileset2, exterior_tileset],
-            0,
-            0,
-        )!;
-        const trees2Layer = map.createLayer(
-            "Trees2",
-            [tileset, tileset2, exterior_tileset],
-            0,
-            0,
-        )!;
-        const treesLayer = map.createLayer(
-            "Trees",
-            [tileset, tileset2, exterior_tileset],
-            0,
-            0,
-        )!;
+        const buildingsLayer = map.createLayer("Buildings", allTilesets, 0, 0)!;
+        const trees2Layer = map.createLayer("Trees2", allTilesets, 0, 0)!;
+        const treesLayer = map.createLayer("Trees", allTilesets, 0, 0)!;
 
         // treesLayer.setDepth(20);
         // wallLayer.setDepth(10);
@@ -238,6 +225,8 @@ export class Game extends Scene {
             trees2Layer,
             treesLayer,
         );
+
+        this.setupChatBlur();
     }
 
     public createPlayer(
@@ -245,6 +234,7 @@ export class Game extends Scene {
         name: string | undefined,
         x: number,
         y: number,
+        availabilityStatus: AvailabilityStatus = AvailabilityStatus.ONLINE,
         opts: { isLocal: boolean },
     ): void {
         if (this.players.has(id)) {
@@ -258,6 +248,7 @@ export class Game extends Scene {
             id,
             x,
             y,
+            availabilityStatus,
             SpriteKeys.ADAM,
             {
                 isLocal: opts.isLocal,
@@ -444,8 +435,8 @@ export class Game extends Scene {
         this.physics.add.collider(this.playersLayer, treesLayer);
         this.physics.add.collider(this.playersLayer, trees2Layer);
 
-        wallLayer.setCollisionBetween(0, 10000, true);
-        furnitureLayer.setCollisionBetween(0, 9500, true);
+        wallLayer.setCollisionBetween(0, 100000, true);
+        furnitureLayer.setCollisionBetween(0, 200000, true);
         treesLayer.setCollisionBetween(0, 9500, true);
         trees2Layer.setCollisionBetween(0, 9500, true);
 

@@ -77,8 +77,8 @@ function UiControls() {
     };
 
     return (
-        <div className="h-[var(--ui-controls-height)] w-full flex justify-between items-center bg-primary/80 px-5">
-            <div className="controller-container flex gap-4 items-center">
+        <div className="h-[var(--ui-controls-height)] w-fit fixed rounded-xl bottom-4 flex gap-4 justify-between items-center bg-primary/80 px-5">
+            <div className="controller-container flex gap-4 items-center pr-30">
                 <CharacterButton />
                 <UiControlsButton
                     icon={PhoneMissed}

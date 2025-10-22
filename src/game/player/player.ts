@@ -6,12 +6,13 @@ import {
     WalkAnimationKeys,
 } from "../commmon/enums";
 import { ReactionData } from "@/communication/reaction/_types";
+import { AvailabilityStatus } from "./_enums";
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
-    id: string;
-    name: string;
-    sprite: string;
-    scene: Scene;
+    public id: string;
+    public name: string;
+    private sprite: string;
+    public scene: Scene;
     x: number;
     y: number;
     vx: number;
@@ -24,17 +25,19 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         t: Date.now(),
     }; // latest server target
     prevPos = { x: this.x, y: this.y, t: Date.now() };
+    public availabilityStatus: AvailabilityStatus = AvailabilityStatus.ONLINE;
+    private statusCircle: Phaser.GameObjects.Graphics;
 
-    isAttacking: boolean;
-    isRaisingHand: boolean = false;
-    raisHandGraphics: {
+    public isAttacking: boolean;
+    public isRaisingHand: boolean = false;
+    private raisHandGraphics: {
         bubble: Phaser.GameObjects.Graphics;
         emojiText: Phaser.GameObjects.Text;
     } | null = null;
 
-    playerProducerIds: string[];
+    public playerProducerIds: string[];
 
-    nameText: Phaser.GameObjects.Text;
+    private nameText: Phaser.GameObjects.Text;
     voiceIndicator: Phaser.GameObjects.Image;
     uiContainer: Phaser.GameObjects.Container;
 
@@ -55,12 +58,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         id: string,
         x: number,
         y: number,
+        availabilityStatus: AvailabilityStatus,
         sprite: string,
         ops: { isLocal: boolean },
     ) {
         super(scene, x, y, sprite);
 
         this.name = name as string;
+        this.availabilityStatus = availabilityStatus;
         scene.add.existing(this);
         scene.physics.add.existing(this);
 
@@ -98,6 +103,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.setupUiEventListener();
     }
 
+    public changePlayerAvailabilityStatus(status: AvailabilityStatus) {
+        this.availabilityStatus = status;
+        if (this.statusCircle) {
+            this.updateStatusCircle();
+        }
+    }
+
     public showReactionTag(data: ReactionData) {
         if (!data.reaction) {
             console.warn("No emoji provided");
@@ -117,7 +129,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             return;
         }
 
-        // Create emoji text first to measure its size
         const emojiText = this.scene.add
             .text(0, -70, data.reaction, {
                 font: "25px Arial",
@@ -209,9 +220,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     ) {
         graphics.clear();
 
-        // Bubble colors
-        graphics.fillStyle(0xffffff, 0.95); // White with slight transparency
-        // graphics.lineStyle(2, 0x333333, 1); // Dark border
+        graphics.fillStyle(0xffffff, 1);
 
         const cornerRadius = 8;
         const bubbleX = x - width / 2;
@@ -259,30 +268,67 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             })
             .setOrigin(0.5, 0.5);
 
+        this.statusCircle = this.scene.add.graphics();
+        const circleRadius = 4;
+
+        this.updateStatusCircle();
+
+        // Calculate dimensions including the status circle
         const nameWidth = this.nameText.width;
         const nameHeight = this.nameText.height;
-
         const padding = 8;
-
-        const bgWidth = nameWidth + padding * 2;
+        const gap = 6;
+        const totalWidth = circleRadius * 2 + gap + nameWidth;
+        const bgWidth = totalWidth + padding * 2;
         const bgHeight = nameHeight + padding * 2;
 
         const background = this.scene.add.graphics();
-        background.fillStyle(0x000000, 0.5); // Black with 50% opacity
+        background.fillStyle(0x000000, 0.7);
         background.fillRoundedRect(
             -bgWidth / 2,
             -bgHeight / 2,
             bgWidth,
             bgHeight,
-            8, // Corner radius
+            8,
         );
+
+        // Position elements relative to center
+        const circleX = -totalWidth / 2 + circleRadius;
+        const nameX = circleX + circleRadius + gap + nameWidth / 2;
+
+        this.statusCircle.setPosition(circleX, 0);
+        this.nameText.setPosition(nameX, 0);
 
         this.uiContainer = this.scene.add.container(this.x, this.y - 50, [
             background,
+            this.statusCircle,
             this.nameText,
         ]);
 
         this.uiContainer.setDepth(10);
+    }
+
+    private updateStatusCircle() {
+        const displayRadius = 4;
+        const drawRadius = 44;
+
+        let statusColor: number;
+        switch (this.availabilityStatus) {
+            case AvailabilityStatus.ONLINE:
+                statusColor = 0x00ff00;
+                break;
+            case AvailabilityStatus.FOCUS:
+                statusColor = 0xff9500;
+                break;
+            default:
+                statusColor = 0x00ff00;
+        }
+
+        this.statusCircle.clear();
+        this.statusCircle.fillStyle(statusColor, 1);
+        this.statusCircle.fillCircle(0, 0, drawRadius);
+
+        this.statusCircle.setScale(displayRadius / drawRadius);
     }
 
     public showVoiceIndicator() {

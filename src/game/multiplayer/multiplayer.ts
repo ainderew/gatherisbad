@@ -4,6 +4,7 @@ import { PlayerDto } from "./_types";
 import { CONFIG } from "@/common/utils/config";
 import useUserStore from "@/common/store/useStore";
 import usePlayersStore from "@/common/store/playerStore";
+import { AvailabilityStatus } from "../player/_enums";
 
 export class Multiplayer {
     socket: SocketIOClient.Socket = io(CONFIG.SERVER_URL, {
@@ -25,7 +26,7 @@ export class Multiplayer {
         this.socket.disconnect();
     }
 
-    public emitPlayerMovement(data: PlayerDto) {
+    public emitPlayerMovement(data: Partial<PlayerDto>) {
         this.socket.emit("playerMovement", data);
     }
 
@@ -35,6 +36,7 @@ export class Multiplayer {
             name: string | undefined,
             x: number,
             y: number,
+            availabilityStatus: AvailabilityStatus,
             opts: { isLocal: boolean },
         ) => void,
         destroyPlayer: (id: string) => void,
@@ -49,12 +51,16 @@ export class Multiplayer {
                         player.name = "You";
                     }
 
-                    console.log("CURRENT PLAYERS:", player);
+                    const availabilityStatus = player?.isInFocusMode
+                        ? AvailabilityStatus.FOCUS
+                        : AvailabilityStatus.ONLINE;
+
                     createPlayer(
                         player.id,
                         player.name,
                         player.x,
                         player.y,
+                        availabilityStatus,
                         player.opts,
                     );
                 });
@@ -62,7 +68,18 @@ export class Multiplayer {
         );
 
         this.socket.on("newPlayer", (data: PlayerDto) => {
-            createPlayer(data.id, data.name, data.x, data.y, data.opts);
+            const availabilityStatus = data?.isInFocusMode
+                ? AvailabilityStatus.FOCUS
+                : AvailabilityStatus.ONLINE;
+
+            createPlayer(
+                data.id,
+                data.name,
+                data.x,
+                data.y,
+                availabilityStatus,
+                data.opts,
+            );
         });
 
         this.socket.on("deletePlayer", (data: { id: string }) => {

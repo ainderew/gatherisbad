@@ -3,6 +3,7 @@ export interface PlayerDto {
     name?: string;
     x: number;
     y: number;
+    isInFocusMode: boolean;
     isAttacking: boolean;
     vx: number;
     vy: number;

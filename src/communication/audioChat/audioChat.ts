@@ -1,5 +1,7 @@
-import { Producer, RtpParameters } from "mediasoup-client/types";
+import { Consumer, Producer, RtpParameters } from "mediasoup-client/types";
 import { MediaTransportService } from "../mediaTransportService/mediaTransportServive";
+import usePlayersStore from "@/common/store/playerStore";
+import { AvailabilityStatus } from "@/game/player/_enums";
 
 interface ConsumerServerResponse {
     id: string;
@@ -9,14 +11,16 @@ interface ConsumerServerResponse {
 }
 
 export class AudioChat {
-    // private recvTransportConnected: boolean = false;
+    public static instance: AudioChat | null = null;
+    public isMuted: boolean = true;
+
     private sfuService: MediaTransportService;
     private audioProducer?: Producer;
-    public isMuted: boolean = true;
-    public static instance: AudioChat | null = null;
     private audioElementsSetter: (audioElement: HTMLAudioElement) => void;
     private audioContext: AudioContext;
     private audioDestination?: MediaStreamAudioDestinationNode;
+    private consumers: Map<string, Consumer> = new Map();
+    private isInFocusMode: boolean;
 
     constructor() {
         /**
@@ -40,6 +44,7 @@ export class AudioChat {
         setter: (audioElement: HTMLAudioElement) => void,
     ) {
         this.audioElementsSetter = setter;
+        this.watchFocusModeChanges();
     }
 
     public async joinVoiceChat() {
@@ -99,13 +104,19 @@ export class AudioChat {
                 },
             );
 
-            const consumer = await this.sfuService.recvTransport!.consume({
-                id: consumerData.id,
-                producerId: consumerData.producerId,
-                kind: consumerData.kind,
-                rtpParameters: consumerData.rtpParameters,
-            });
+            const consumer: Consumer =
+                await this.sfuService.recvTransport!.consume({
+                    id: consumerData.id,
+                    producerId: consumerData.producerId,
+                    kind: consumerData.kind,
+                    rtpParameters: consumerData.rtpParameters,
+                });
 
+            this.consumers.set(consumer.id, consumer);
+
+            if (this.isInFocusMode) {
+                consumer.pause();
+            }
             // Wait for transport to be connected before resuming
             // let attempts = 0;
             // while (!this.recvTransportConnected && attempts < 50) {
@@ -201,5 +212,46 @@ export class AudioChat {
             this.audioProducer?.resume();
             this.isMuted = false;
         }
+    }
+
+    public enableFocusMode() {
+        if (!this.consumers) return;
+        this.consumers.forEach((consumer) => consumer.pause());
+        this.isInFocusMode = true;
+    }
+
+    public disableFocusMode() {
+        if (!this.consumers) return;
+        this.consumers.forEach((consumer) => consumer.resume());
+        this.isInFocusMode = false;
+    }
+
+    public emitFocusModeChange() {
+        const localPlayerId = usePlayersStore.getState().localPlayerId;
+        this.sfuService.socket.emit("focusModeChange", {
+            playerId: localPlayerId,
+            isInFocusMode: this.isInFocusMode,
+        });
+    }
+
+    public watchFocusModeChanges() {
+        this.sfuService.socket.on(
+            "playerFocusModeChanged",
+            (data: {
+                playerId: string;
+                isInFocusMode: boolean;
+                socketId: string;
+            }) => {
+                const playerMap = usePlayersStore.getState().playerMap;
+                console.log(playerMap);
+                playerMap[data.playerId].changePlayerAvailabilityStatus(
+                    data.isInFocusMode
+                        ? AvailabilityStatus.FOCUS
+                        : AvailabilityStatus.ONLINE,
+                );
+
+                // Update UI or player state accordingly
+            },
+        );
     }
 }
